@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Settings, CreditCard as Edit, MapPin, Calendar, Users, Heart, MessageCircle, Share } from 'lucide-react-native';
+import { Settings, Edit, MapPin, Calendar, Heart, MessageCircle, Share } from 'lucide-react-native';
+import { useTheme } from '@/contexts/ThemeContext';
+import { router } from 'expo-router';
 
 const userPosts = [
   {
@@ -24,14 +26,15 @@ const userPosts = [
 
 export default function ProfileScreen() {
   const [activeTab, setActiveTab] = useState<'posts' | 'about'>('posts');
+  const { colors } = useTheme();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.headerButton}>
-            <Settings size={24} color="#6B7280" />
+          <TouchableOpacity style={[styles.headerButton, { backgroundColor: colors.surfaceVariant }]}>
+            <Settings size={24} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
@@ -42,43 +45,46 @@ export default function ProfileScreen() {
               source={{ uri: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&dpr=2' }}
               style={styles.profileImage}
             />
-            <TouchableOpacity style={styles.editImageButton}>
+            <TouchableOpacity style={[styles.editImageButton, { backgroundColor: colors.primary }]}>
               <Edit size={16} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.profileName}>Linh Nguyen</Text>
-          <Text style={styles.profileBio}>
+          <Text style={[styles.profileName, { color: colors.text }]}>Linh Nguyen</Text>
+          <Text style={[styles.profileBio, { color: colors.textSecondary }]}>
             Fitness enthusiast | Yoga lover | Spreading positivity through wellness 🌟
           </Text>
 
           <View style={styles.profileMeta}>
             <View style={styles.metaItem}>
-              <MapPin size={16} color="#6B7280" />
-              <Text style={styles.metaText}>San Francisco, CA</Text>
+              <MapPin size={16} color={colors.textSecondary} />
+              <Text style={[styles.metaText, { color: colors.textSecondary }]}>San Francisco, CA</Text>
             </View>
             <View style={styles.metaItem}>
-              <Calendar size={16} color="#6B7280" />
-              <Text style={styles.metaText}>Joined March 2023</Text>
+              <Calendar size={16} color={colors.textSecondary} />
+              <Text style={[styles.metaText, { color: colors.textSecondary }]}>Joined March 2023</Text>
             </View>
           </View>
 
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>1,247</Text>
-              <Text style={styles.statLabel}>Followers</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>1,247</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Followers</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>892</Text>
-              <Text style={styles.statLabel}>Following</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>892</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Following</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>156</Text>
-              <Text style={styles.statLabel}>Posts</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>156</Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Posts</Text>
             </View>
           </View>
 
-          <TouchableOpacity style={styles.editProfileButton}>
+          <TouchableOpacity 
+            style={[styles.editProfileButton, { backgroundColor: colors.primary }]}
+            onPress={() => router.push('/profile/edit')}
+          >
             <Text style={styles.editProfileText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
@@ -86,15 +92,15 @@ export default function ProfileScreen() {
         {/* Tab Navigation */}
         <View style={styles.tabContainer}>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'posts' && styles.activeTab]}
+            style={[styles.tab, activeTab === 'posts' && { borderBottomColor: colors.primary }]}
             onPress={() => setActiveTab('posts')}
           >
-            <Text style={[styles.tabText, activeTab === 'posts' && styles.activeTabText]}>
+            <Text style={[styles.tabText, { color: colors.textSecondary }, activeTab === 'posts' && { color: colors.primary }]}>
               Posts
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'about' && styles.activeTab]}
+            style={[styles.tab, activeTab === 'about' && { borderBottomColor: colors.primary }]}
             onPress={() => setActiveTab('about')}
           >
             <Text style={[styles.tabText, activeTab === 'about' && styles.activeTabText]}>

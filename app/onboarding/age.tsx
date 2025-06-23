@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ArrowRight, ArrowLeft } from 'lucide-react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function AgeSelection() {
   const [age, setAge] = useState(20);
+  const { colors } = useTheme();
 
   const handleContinue = () => {
     router.push('/onboarding/height');

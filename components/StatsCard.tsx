@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface StatsCardProps {
   title: string;
@@ -9,12 +10,17 @@ interface StatsCardProps {
   textColor?: string;
 }
 
-export default function StatsCard({ title, value, subtitle, backgroundColor = '#FF6B82', textColor = '#FFFFFF' }: StatsCardProps) {
+export default function StatsCard({ title, value, subtitle, backgroundColor, textColor }: StatsCardProps) {
+  const { colors } = useTheme();
+  
+  const cardBg = backgroundColor || colors.accent;
+  const cardTextColor = textColor || '#FFFFFF';
+  
   return (
-    <View style={[styles.container, { backgroundColor }]}>
-      <Text style={[styles.title, { color: textColor }]}>{title}</Text>
-      <Text style={[styles.value, { color: textColor }]}>{value}</Text>
-      {subtitle && <Text style={[styles.subtitle, { color: textColor }]}>{subtitle}</Text>}
+    <View style={[styles.container, { backgroundColor: cardBg }]}>
+      <Text style={[styles.title, { color: cardTextColor }]}>{title}</Text>
+      <Text style={[styles.value, { color: cardTextColor }]}>{value}</Text>
+      {subtitle && <Text style={[styles.subtitle, { color: cardTextColor }]}>{subtitle}</Text>}
     </View>
   );
 }

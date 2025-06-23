@@ -3,6 +3,9 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Plus, Search, Filter, Heart, MessageCircle, Share, Users, Bell } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useNotifications } from '@/contexts/NotificationContext';
+import NotificationBadge from '@/components/NotificationBadge';
 
 const posts = [
   {
@@ -28,6 +31,219 @@ const stories = [
 ];
 
 export default function HomeScreen() {
+  const { colors } = useTheme();
+  
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingTop: 16,
+      paddingBottom: 20,
+    },
+    userInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    userAvatar: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      marginRight: 12,
+    },
+    greeting: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    date: {
+      fontSize: 14,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    headerButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.surfaceVariant,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginLeft: 8,
+    },
+    headerActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    storiesContainer: {
+      marginBottom: 20,
+    },
+    storiesContent: {
+      paddingHorizontal: 20,
+      gap: 16,
+    },
+    storyItem: {
+      alignItems: 'center',
+    },
+    addStoryButton: {
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      backgroundColor: colors.primaryLight,
+      borderWidth: 2,
+      borderColor: colors.primary,
+      borderStyle: 'dashed',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    storyAvatar: {
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      marginBottom: 8,
+      borderWidth: 2,
+      borderColor: colors.primary,
+    },
+    storyName: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    quickNavContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      paddingHorizontal: 40,
+      paddingVertical: 20,
+      marginBottom: 20,
+    },
+    quickNavItem: {
+      alignItems: 'center',
+    },
+    quickNavIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 8,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    quickNavText: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.text,
+    },
+    searchContainer: {
+      flexDirection: 'row',
+      paddingHorizontal: 20,
+      marginBottom: 20,
+      gap: 12,
+    },
+    searchBar: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.inputBackground,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      height: 48,
+      gap: 12,
+    },
+    searchPlaceholder: {
+      fontSize: 14,
+      fontFamily: 'Inter-Regular',
+      color: colors.textTertiary,
+    },
+    filterButton: {
+      width: 48,
+      height: 48,
+      borderRadius: 12,
+      backgroundColor: colors.inputBackground,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    postsContainer: {
+      paddingHorizontal: 20,
+    },
+    postCard: {
+      backgroundColor: colors.cardBackground,
+      borderRadius: 16,
+      padding: 16,
+      marginBottom: 16,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    postHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    postUserAvatar: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      marginRight: 12,
+    },
+    postUserInfo: {
+      flex: 1,
+    },
+    postUserName: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    postTime: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    postContent: {
+      fontSize: 14,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+      lineHeight: 20,
+      marginBottom: 12,
+    },
+    postImage: {
+      width: '100%',
+      height: 200,
+      borderRadius: 12,
+      marginBottom: 12,
+    },
+    postActions: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingTop: 12,
+      borderTopWidth: 1,
+      borderTopColor: colors.divider,
+    },
+    actionButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    actionText: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      color: colors.textSecondary,
+    },
+  });
+  
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -46,10 +262,13 @@ export default function HomeScreen() {
             style={styles.headerButton}
             onPress={() => router.push('/(tabs)/messages')}
           >
-            <MessageCircle size={24} color="#6B7280" />
+            <MessageCircle size={24} color={colors.textSecondary} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.headerButton}>
-            <Bell size={24} color="#6B7280" />
+          <TouchableOpacity 
+            style={styles.headerButton}
+            onPress={() => router.push('/(tabs)/notifications')}
+          >
+            <Bell size={24} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -66,7 +285,7 @@ export default function HomeScreen() {
             <TouchableOpacity key={story.id} style={styles.storyItem}>
               {story.isAdd ? (
                 <View style={styles.addStoryButton}>
-                  <Plus size={24} color="#2DD4BF" />
+                  <Plus size={24} color={colors.primary} />
                 </View>
               ) : (
                 <Image source={{ uri: story.avatar }} style={styles.storyAvatar} />
@@ -82,7 +301,7 @@ export default function HomeScreen() {
             style={styles.quickNavItem}
             onPress={() => router.push('/(tabs)/groups')}
           >
-            <View style={[styles.quickNavIcon, { backgroundColor: '#2DD4BF' }]}>
+            <View style={[styles.quickNavIcon, { backgroundColor: colors.primary }]}>
               <Users size={20} color="#FFFFFF" />
             </View>
             <Text style={styles.quickNavText}>Groups</Text>
@@ -91,12 +310,15 @@ export default function HomeScreen() {
             style={styles.quickNavItem}
             onPress={() => router.push('/(tabs)/messages')}
           >
-            <View style={[styles.quickNavIcon, { backgroundColor: '#FF6B82' }]}>
+            <View style={[styles.quickNavIcon, { backgroundColor: colors.accent }]}>
               <MessageCircle size={20} color="#FFFFFF" />
             </View>
             <Text style={styles.quickNavText}>Messages</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.quickNavItem}>
+          <TouchableOpacity 
+            style={styles.quickNavItem}
+            onPress={() => router.push({ pathname: '/search' as any })}
+          >
             <View style={[styles.quickNavIcon, { backgroundColor: '#8B5CF6' }]}>
               <Search size={20} color="#FFFFFF" />
             </View>
@@ -106,12 +328,15 @@ export default function HomeScreen() {
 
         {/* Search Bar */}
         <View style={styles.searchContainer}>
-          <View style={styles.searchBar}>
-            <Search size={20} color="#9CA3AF" />
+          <TouchableOpacity 
+            style={styles.searchBar}
+            onPress={() => router.push({ pathname: '/search' as any })}
+          >
+            <Search size={20} color={colors.textTertiary} />
             <Text style={styles.searchPlaceholder}>Search friends or neighbors</Text>
-          </View>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.filterButton}>
-            <Filter size={20} color="#6B7280" />
+            <Filter size={20} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
@@ -133,15 +358,15 @@ export default function HomeScreen() {
 
               <View style={styles.postActions}>
                 <TouchableOpacity style={styles.actionButton}>
-                  <Heart size={20} color="#6B7280" />
+                  <Heart size={20} color={colors.textSecondary} />
                   <Text style={styles.actionText}>{post.likes}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionButton}>
-                  <MessageCircle size={20} color="#6B7280" />
+                  <MessageCircle size={20} color={colors.textSecondary} />
                   <Text style={styles.actionText}>{post.comments}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionButton}>
-                  <Share size={20} color="#6B7280" />
+                  <Share size={20} color={colors.textSecondary} />
                   <Text style={styles.actionText}>Share</Text>
                 </TouchableOpacity>
               </View>
@@ -152,214 +377,3 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 20,
-  },
-  userInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  userAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    marginRight: 12,
-  },
-  greeting: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: '#111827',
-    marginBottom: 2,
-  },
-  date: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-  },
-  headerButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F9FAFB',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  storiesContainer: {
-    marginBottom: 20,
-  },
-  storiesContent: {
-    paddingHorizontal: 20,
-    gap: 16,
-  },
-  storyItem: {
-    alignItems: 'center',
-  },
-  addStoryButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#F0FDFA',
-    borderWidth: 2,
-    borderColor: '#2DD4BF',
-    borderStyle: 'dashed',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  storyAvatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginBottom: 8,
-    borderWidth: 2,
-    borderColor: '#2DD4BF',
-  },
-  storyName: {
-    fontSize: 12,
-    fontFamily: 'Inter-Medium',
-    color: '#111827',
-    textAlign: 'center',
-  },
-  quickNavContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 40,
-    paddingVertical: 20,
-    marginBottom: 20,
-  },
-  quickNavItem: {
-    alignItems: 'center',
-  },
-  quickNavIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  quickNavText: {
-    fontSize: 12,
-    fontFamily: 'Inter-Medium',
-    color: '#111827',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    gap: 12,
-  },
-  searchBar: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    height: 48,
-    gap: 12,
-  },
-  searchPlaceholder: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: '#9CA3AF',
-  },
-  filterButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: '#F9FAFB',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  postsContainer: {
-    paddingHorizontal: 20,
-  },
-  postCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  postHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  postUserAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
-  },
-  postUserInfo: {
-    flex: 1,
-  },
-  postUserName: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: '#111827',
-    marginBottom: 2,
-  },
-  postTime: {
-    fontSize: 12,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-  },
-  postContent: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: '#374151',
-    lineHeight: 20,
-    marginBottom: 12,
-  },
-  postImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  postActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  actionText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    color: '#6B7280',
-  },
-});

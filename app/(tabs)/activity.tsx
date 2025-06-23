@@ -4,23 +4,26 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import UserHeader from '@/components/UserHeader';
 import CircularProgress from '@/components/CircularProgress';
 import { MapPin, Trophy, Medal, Award } from 'lucide-react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function ActivityScreen() {
+  const { colors } = useTheme();
+  
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <UserHeader userName="Linh" date="Thursday, 08 July" showMore />
         
         {/* Steps Challenge */}
-        <View style={styles.challengeCard}>
+        <View style={[styles.challengeCard, { backgroundColor: colors.surface }]}>
           <View style={styles.challengeHeader}>
-            <View style={styles.challengeIcon}>
+            <View style={[styles.challengeIcon, { backgroundColor: colors.primaryLight }]}>
               <Text style={styles.challengeEmoji}>👟</Text>
             </View>
-            <Text style={styles.challengeTitle}>Steps 2,000+</Text>
+            <Text style={[styles.challengeTitle, { color: colors.text }]}>Steps 2,000+</Text>
           </View>
-          <Text style={styles.challengeSubtitle}>Let's keep going</Text>
-          <Text style={styles.challengeDescription}>Keep participating in weekly challenges</Text>
+          <Text style={[styles.challengeSubtitle, { color: colors.text }]}>Let's keep going</Text>
+          <Text style={[styles.challengeDescription, { color: colors.textSecondary }]}>Keep participating in weekly challenges</Text>
         </View>
 
         {/* Circular Progress */}

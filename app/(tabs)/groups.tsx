@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Plus, Users, Lock, Globe, Settings } from 'lucide-react-native';
+import { useTheme } from '@/contexts/ThemeContext';
+import { router } from 'expo-router';
 
 const myGroups = [
   {
@@ -52,6 +54,7 @@ const pendingRequests = [
 
 export default function GroupsScreen() {
   const [activeTab, setActiveTab] = useState<'my-groups' | 'requests'>('my-groups');
+  const { colors } = useTheme();
 
   const getVisibilityIcon = (visibility: string) => {
     switch (visibility) {
@@ -66,12 +69,238 @@ export default function GroupsScreen() {
     }
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingTop: 16,
+      paddingBottom: 20,
+    },
+    title: {
+      fontSize: 24,
+      fontFamily: 'Poppins-Bold',
+      color: colors.text,
+    },
+    createButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    tabContainer: {
+      flexDirection: 'row',
+      paddingHorizontal: 20,
+      marginBottom: 20,
+    },
+    tab: {
+      flex: 1,
+      paddingVertical: 12,
+      alignItems: 'center',
+      borderBottomWidth: 2,
+      borderBottomColor: 'transparent',
+    },
+    activeTab: {
+      borderBottomColor: colors.primary,
+    },
+    tabText: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      color: colors.textSecondary,
+    },
+    activeTabText: {
+      color: colors.primary,
+    },
+    groupsList: {
+      paddingHorizontal: 20,
+      gap: 16,
+    },
+    groupCard: {
+      flexDirection: 'row',
+      backgroundColor: colors.surface,
+      borderRadius: 16,
+      padding: 12,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    groupImage: {
+      width: 80,
+      height: 80,
+      borderRadius: 12,
+      marginRight: 12,
+    },
+    groupInfo: {
+      flex: 1,
+      justifyContent: 'space-between',
+    },
+    groupHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: 8,
+    },
+    groupName: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      flex: 1,
+      marginRight: 8,
+    },
+    settingsButton: {
+      padding: 4,
+    },
+    groupMeta: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    groupMembers: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    membersText: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    groupVisibility: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    visibilityText: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    adminBadge: {
+      alignSelf: 'flex-start',
+      backgroundColor: colors.warning + '20',
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 8,
+      marginBottom: 4,
+    },
+    adminText: {
+      fontSize: 10,
+      fontFamily: 'Inter-Medium',
+      color: colors.warning,
+    },
+    newPostsBadge: {
+      alignSelf: 'flex-start',
+      backgroundColor: colors.info + '20',
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 8,
+    },
+    newPostsText: {
+      fontSize: 10,
+      fontFamily: 'Inter-Medium',
+      color: colors.info,
+    },
+    requestsList: {
+      paddingHorizontal: 20,
+      gap: 16,
+    },
+    requestCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      borderRadius: 16,
+      padding: 16,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    requesterAvatar: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      marginRight: 12,
+    },
+    requestInfo: {
+      flex: 1,
+      marginRight: 12,
+    },
+    requestText: {
+      fontSize: 14,
+      fontFamily: 'Inter-Regular',
+      color: colors.text,
+      lineHeight: 20,
+      marginBottom: 4,
+    },
+    requesterName: {
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+    },
+    groupNameText: {
+      fontFamily: 'Inter-SemiBold',
+      color: colors.primary,
+    },
+    requestTime: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    requestActions: {
+      gap: 8,
+    },
+    approveButton: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 8,
+    },
+    approveText: {
+      fontSize: 12,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.background,
+    },
+    declineButton: {
+      backgroundColor: colors.surfaceVariant,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 8,
+    },
+    declineText: {
+      fontSize: 12,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.textSecondary,
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 40,
+    },
+    emptyText: {
+      fontSize: 16,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>My Groups</Text>
-        <TouchableOpacity style={styles.createButton}>
-          <Plus size={24} color="#FFFFFF" />
+        <TouchableOpacity 
+          style={styles.createButton}
+          onPress={() => router.push('/groups/create')}
+        >
+          <Plus size={24} color={colors.background} />
         </TouchableOpacity>
       </View>
 
@@ -99,20 +328,27 @@ export default function GroupsScreen() {
         {activeTab === 'my-groups' ? (
           <View style={styles.groupsList}>
             {myGroups.map((group) => (
-              <TouchableOpacity key={group.id} style={styles.groupCard}>
+              <TouchableOpacity 
+                key={group.id} 
+                style={styles.groupCard}
+                onPress={() => router.push({ pathname: '/groups/[id]', params: { id: group.id }})}
+              >
                 <Image source={{ uri: group.image }} style={styles.groupImage} />
                 <View style={styles.groupInfo}>
                   <View style={styles.groupHeader}>
                     <Text style={styles.groupName}>{group.name}</Text>
                     {group.isAdmin && (
-                      <TouchableOpacity style={styles.settingsButton}>
-                        <Settings size={16} color="#6B7280" />
+                      <TouchableOpacity 
+                        style={styles.settingsButton}
+                        onPress={() => router.push({ pathname: '/groups/admin/[id]', params: { id: group.id }})}
+                      >
+                        <Settings size={16} color={colors.textSecondary} />
                       </TouchableOpacity>
                     )}
                   </View>
                   <View style={styles.groupMeta}>
                     <View style={styles.groupMembers}>
-                      <Users size={14} color="#6B7280" />
+                      <Users size={14} color={colors.textSecondary} />
                       <Text style={styles.membersText}>{group.members} members</Text>
                     </View>
                     <View style={styles.groupVisibility}>
@@ -172,225 +408,3 @@ export default function GroupsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontFamily: 'Poppins-Bold',
-    color: '#111827',
-  },
-  createButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#2DD4BF',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    marginBottom: 20,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  activeTab: {
-    borderBottomColor: '#2DD4BF',
-  },
-  tabText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    color: '#6B7280',
-  },
-  activeTabText: {
-    color: '#2DD4BF',
-  },
-  groupsList: {
-    paddingHorizontal: 20,
-    gap: 16,
-  },
-  groupCard: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  groupImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 12,
-    marginRight: 12,
-  },
-  groupInfo: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  groupHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  groupName: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: '#111827',
-    flex: 1,
-    marginRight: 8,
-  },
-  settingsButton: {
-    padding: 4,
-  },
-  groupMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  groupMembers: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  membersText: {
-    fontSize: 12,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-  },
-  groupVisibility: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  visibilityText: {
-    fontSize: 12,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-  },
-  adminBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#FEF3C7',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-    marginBottom: 4,
-  },
-  adminText: {
-    fontSize: 10,
-    fontFamily: 'Inter-Medium',
-    color: '#F59E0B',
-  },
-  newPostsBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#DBEAFE',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-  },
-  newPostsText: {
-    fontSize: 10,
-    fontFamily: 'Inter-Medium',
-    color: '#3B82F6',
-  },
-  requestsList: {
-    paddingHorizontal: 20,
-    gap: 16,
-  },
-  requestCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  requesterAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    marginRight: 12,
-  },
-  requestInfo: {
-    flex: 1,
-    marginRight: 12,
-  },
-  requestText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: '#374151',
-    lineHeight: 20,
-    marginBottom: 4,
-  },
-  requesterName: {
-    fontFamily: 'Inter-SemiBold',
-    color: '#111827',
-  },
-  groupNameText: {
-    fontFamily: 'Inter-SemiBold',
-    color: '#2DD4BF',
-  },
-  requestTime: {
-    fontSize: 12,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-  },
-  requestActions: {
-    gap: 8,
-  },
-  approveButton: {
-    backgroundColor: '#2DD4BF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  approveText: {
-    fontSize: 12,
-    fontFamily: 'Inter-SemiBold',
-    color: '#FFFFFF',
-  },
-  declineButton: {
-    backgroundColor: '#F3F4F6',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  declineText: {
-    fontSize: 12,
-    fontFamily: 'Inter-SemiBold',
-    color: '#6B7280',
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  emptyText: {
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-  },
-});

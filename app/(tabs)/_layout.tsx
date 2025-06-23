@@ -1,14 +1,18 @@
 import { Tabs } from 'expo-router';
-import { Chrome as Home, Users, MessageCircle, User, Search, Activity, Dumbbell } from 'lucide-react-native';
+import { Chrome as Home, Users, MessageCircle, User, Search, Activity, Dumbbell, Bell } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import React from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // Custom tab background component for better styling
-const TabBackground = () => (
-  <View style={styles.tabBackground}>
-    <View style={styles.tabIndicator} />
-  </View>
-);
+const TabBackground = () => {
+  const { colors } = useTheme();
+  return (
+    <View style={[styles.tabBackground, { backgroundColor: colors.tabBarBackground }]}>
+      <View style={[styles.tabIndicator, { backgroundColor: colors.primary }]} />
+    </View>
+  );
+};
 
 // Custom tab icon wrapper for enhanced styling
 const TabIcon = ({ IconComponent, size, color, focused, fill }: {
@@ -17,27 +21,36 @@ const TabIcon = ({ IconComponent, size, color, focused, fill }: {
   color: string;
   focused: boolean;
   fill?: string;
-}) => (
-  <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
-    {focused && <View style={styles.tabIconGlow} />}
-    <IconComponent 
-      size={size} 
-      color={color} 
-      strokeWidth={focused ? 2.5 : 2}
-      fill={fill}
-    />
-    {focused && <View style={styles.tabIconDot} />}
-  </View>
-);
+}) => {
+  const { colors } = useTheme();
+  return (
+    <View style={[styles.tabIconContainer, focused && { backgroundColor: `${colors.primary}14` }]}>
+      {focused && <View style={[styles.tabIconGlow, { backgroundColor: `${colors.primary}0D` }]} />}
+      <IconComponent 
+        size={size} 
+        color={color} 
+        strokeWidth={focused ? 2.5 : 2}
+        fill={fill}
+      />
+      {focused && <View style={[styles.tabIconDot, { backgroundColor: colors.primary }]} />}
+    </View>
+  );
+};
 
 export default function TabLayout() {
+  const { colors, isDark } = useTheme();
+  
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: '#2DD4BF',
-        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarStyle: [styles.tabBar, { 
+          backgroundColor: colors.tabBarBackground,
+          borderTopColor: colors.tabBarBorder,
+          shadowColor: colors.shadow,
+        }],
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textTertiary,
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarItemStyle: styles.tabBarItem,
         tabBarShowLabel: true,
@@ -56,7 +69,7 @@ export default function TabLayout() {
               size={focused ? 28 : 24} 
               color={color} 
               focused={focused}
-              fill={focused ? 'rgba(45, 212, 191, 0.1)' : 'none'}
+              fill={focused ? `${colors.primary}1A` : 'none'}
             />
           ),
         }}
@@ -71,7 +84,7 @@ export default function TabLayout() {
               size={focused ? 28 : 24} 
               color={color} 
               focused={focused}
-              fill={focused ? 'rgba(45, 212, 191, 0.1)' : 'none'}
+              fill={focused ? `${colors.primary}1A` : 'none'}
             />
           ),
         }}
@@ -86,7 +99,7 @@ export default function TabLayout() {
               size={focused ? 28 : 24} 
               color={color} 
               focused={focused}
-              fill={focused ? 'rgba(45, 212, 191, 0.1)' : 'none'}
+              fill={focused ? `${colors.primary}1A` : 'none'}
             />
           ),
         }}
@@ -101,7 +114,22 @@ export default function TabLayout() {
               size={focused ? 28 : 24} 
               color={color} 
               focused={focused}
-              fill={focused ? 'rgba(45, 212, 191, 0.1)' : 'none'}
+              fill={focused ? `${colors.primary}1A` : 'none'}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          title: 'Notifications',
+          tabBarIcon: ({ size, color, focused }) => (
+            <TabIcon 
+              IconComponent={Bell} 
+              size={focused ? 28 : 24} 
+              color={color} 
+              focused={focused}
+              fill={focused ? `${colors.primary}1A` : 'none'}
             />
           ),
         }}
@@ -116,7 +144,7 @@ export default function TabLayout() {
               size={focused ? 28 : 24} 
               color={color} 
               focused={focused}
-              fill={focused ? 'rgba(45, 212, 191, 0.1)' : 'none'}
+              fill={focused ? `${colors.primary}1A` : 'none'}
             />
           ),
         }}
@@ -145,14 +173,11 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
     height: 95,
     paddingTop: 16,
     paddingBottom: 32,
     paddingHorizontal: 12,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.08,
     shadowRadius: 16,
@@ -178,7 +203,6 @@ const styles = StyleSheet.create({
   },
   tabBackground: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
   },
@@ -189,7 +213,6 @@ const styles = StyleSheet.create({
     marginLeft: -20,
     width: 40,
     height: 4,
-    backgroundColor: '#2DD4BF',
     borderRadius: 2,
   },
   tabIconContainer: {
@@ -199,16 +222,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  tabIconActive: {
-    backgroundColor: 'rgba(45, 212, 191, 0.08)',
-    transform: [{ scale: 1.05 }],
-  },
   tabIconGlow: {
     position: 'absolute',
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: 'rgba(45, 212, 191, 0.05)',
     zIndex: -1,
   },
   tabIconDot: {
@@ -217,6 +235,5 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#2DD4BF',
   },
 });

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Filter, Play, Calendar, Users } from 'lucide-react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const workoutCategories = [
   { id: 1, name: 'Bicep', participants: 120, level: 'Beginner' },
@@ -14,6 +15,9 @@ const workoutCategories = [
   { id: 8, name: 'Weight loss', participants: 234, level: 'All Levels' },
   { id: 9, name: 'Woman up front', participants: 67, level: 'Intermediate' },
 ];
+
+
+
 
 const workoutTypes = [
   { name: 'Upper Body', icon: '💪' },

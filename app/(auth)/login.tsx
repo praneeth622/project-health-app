@@ -3,12 +3,14 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { colors } = useTheme();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -28,6 +30,133 @@ export default function LoginScreen() {
     Alert.alert('Social Login', `${provider} login will be implemented`);
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      paddingHorizontal: 24,
+    },
+    header: {
+      alignItems: 'center',
+      paddingTop: 60,
+      paddingBottom: 40,
+    },
+    logo: {
+      fontSize: 32,
+      fontFamily: 'Poppins-Bold',
+      color: colors.primary,
+      marginBottom: 8,
+    },
+    subtitle: {
+      fontSize: 16,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 24,
+    },
+    form: {
+      flex: 1,
+    },
+    inputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surfaceVariant,
+      borderRadius: 12,
+      marginBottom: 16,
+      paddingHorizontal: 16,
+      height: 56,
+    },
+    inputIcon: {
+      marginRight: 12,
+    },
+    input: {
+      flex: 1,
+      fontSize: 16,
+      fontFamily: 'Inter-Regular',
+      color: colors.text,
+    },
+    eyeIcon: {
+      padding: 4,
+    },
+    forgotPassword: {
+      alignSelf: 'flex-end',
+      marginBottom: 24,
+    },
+    forgotPasswordText: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      color: colors.primary,
+    },
+    loginButton: {
+      backgroundColor: colors.primary,
+      borderRadius: 12,
+      height: 56,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 24,
+    },
+    loginButtonDisabled: {
+      opacity: 0.7,
+    },
+    loginButtonText: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.background,
+    },
+    divider: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 24,
+    },
+    dividerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.border,
+    },
+    dividerText: {
+      fontSize: 14,
+      fontFamily: 'Inter-Regular',
+      color: colors.textTertiary,
+      marginHorizontal: 16,
+    },
+    socialButtons: {
+      flexDirection: 'row',
+      gap: 12,
+      marginBottom: 32,
+    },
+    socialButton: {
+      flex: 1,
+      backgroundColor: colors.surfaceVariant,
+      borderRadius: 12,
+      height: 56,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    socialButtonText: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+    },
+    footer: {
+      alignItems: 'center',
+      paddingBottom: 24,
+    },
+    footerText: {
+      fontSize: 14,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    signUpLink: {
+      color: colors.primary,
+      fontFamily: 'Inter-SemiBold',
+    },
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -38,7 +167,7 @@ export default function LoginScreen() {
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
-            <Mail size={20} color="#9CA3AF" style={styles.inputIcon} />
+            <Mail size={20} color={colors.textTertiary} style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Email address"
@@ -46,37 +175,35 @@ export default function LoginScreen() {
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={colors.textTertiary}
             />
           </View>
 
           <View style={styles.inputContainer}>
-            <Lock size={20} color="#9CA3AF" style={styles.inputIcon} />
+            <Lock size={20} color={colors.textTertiary} style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Password"
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={colors.textTertiary}
             />
             <TouchableOpacity
               style={styles.eyeIcon}
               onPress={() => setShowPassword(!showPassword)}
             >
               {showPassword ? (
-                <EyeOff size={20} color="#9CA3AF" />
+                <EyeOff size={20} color={colors.textTertiary} />
               ) : (
-                <Eye size={20} color="#9CA3AF" />
+                <Eye size={20} color={colors.textTertiary} />
               )}
             </TouchableOpacity>
           </View>
 
-          <Link href="/(auth)/forgot-password" asChild>
-            <TouchableOpacity style={styles.forgotPassword}>
-              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity style={styles.forgotPassword}>
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.loginButton, loading && styles.loginButtonDisabled]}
@@ -123,129 +250,3 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-  },
-  header: {
-    alignItems: 'center',
-    paddingTop: 60,
-    paddingBottom: 40,
-  },
-  logo: {
-    fontSize: 32,
-    fontFamily: 'Poppins-Bold',
-    color: '#2DD4BF',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  form: {
-    flex: 1,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-    borderRadius: 12,
-    marginBottom: 16,
-    paddingHorizontal: 16,
-    height: 56,
-  },
-  inputIcon: {
-    marginRight: 12,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    fontFamily: 'Inter-Regular',
-    color: '#111827',
-  },
-  eyeIcon: {
-    padding: 4,
-  },
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginBottom: 24,
-  },
-  forgotPasswordText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    color: '#2DD4BF',
-  },
-  loginButton: {
-    backgroundColor: '#2DD4BF',
-    borderRadius: 12,
-    height: 56,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  loginButtonDisabled: {
-    opacity: 0.7,
-  },
-  loginButtonText: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: '#FFFFFF',
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#E5E7EB',
-  },
-  dividerText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: '#9CA3AF',
-    marginHorizontal: 16,
-  },
-  socialButtons: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 32,
-  },
-  socialButton: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-    borderRadius: 12,
-    height: 56,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  socialButtonText: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: '#374151',
-  },
-  footer: {
-    alignItems: 'center',
-    paddingBottom: 24,
-  },
-  footerText: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-  },
-  signUpLink: {
-    color: '#2DD4BF',
-    fontFamily: 'Inter-SemiBold',
-  },
-});

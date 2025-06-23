@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Search, Filter, MapPin, Users, Star } from 'lucide-react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const categories = ['All', 'Yoga', 'Weight Loss', 'Cardio', 'Strength', 'Running'];
 
@@ -41,27 +42,28 @@ const groups = [
 export default function DiscoverScreen() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const { colors } = useTheme();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Discover Groups</Text>
-        <TouchableOpacity style={styles.filterButton}>
-          <Filter size={24} color="#6B7280" />
+        <Text style={[styles.title, { color: colors.text }]}>Discover Groups</Text>
+        <TouchableOpacity style={[styles.filterButton, { backgroundColor: colors.surfaceVariant }]}>
+          <Filter size={24} color={colors.textSecondary} />
         </TouchableOpacity>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Search Bar */}
         <View style={styles.searchContainer}>
-          <View style={styles.searchBar}>
-            <Search size={20} color="#9CA3AF" />
+          <View style={[styles.searchBar, { backgroundColor: colors.surfaceVariant }]}>
+            <Search size={20} color={colors.textTertiary} />
             <TextInput
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: colors.text }]}
               placeholder="Search groups, activities..."
               value={searchQuery}
               onChangeText={setSearchQuery}
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={colors.textTertiary}
             />
           </View>
         </View>

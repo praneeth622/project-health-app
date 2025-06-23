@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface CategoryCardProps {
   title: string;
@@ -8,9 +9,13 @@ interface CategoryCardProps {
   onPress?: () => void;
 }
 
-export default function CategoryCard({ title, icon, backgroundColor = '#FF6B82', onPress }: CategoryCardProps) {
+export default function CategoryCard({ title, icon, backgroundColor, onPress }: CategoryCardProps) {
+  const { colors } = useTheme();
+  
+  const cardBg = backgroundColor || colors.accent;
+  
   return (
-    <TouchableOpacity style={[styles.container, { backgroundColor }]} onPress={onPress}>
+    <TouchableOpacity style={[styles.container, { backgroundColor: cardBg }]} onPress={onPress}>
       <View style={styles.iconContainer}>
         {icon}
       </View>

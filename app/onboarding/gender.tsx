@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ArrowRight, ArrowLeft } from 'lucide-react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function GenderSelection() {
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
+  const { colors } = useTheme();
 
   const handleContinue = () => {
     if (selectedGender) {
@@ -13,11 +15,115 @@ export default function GenderSelection() {
     }
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: 24,
+      paddingTop: 20,
+      paddingBottom: 40,
+    },
+    backButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.surfaceVariant,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 32,
+    },
+    header: {
+      alignItems: 'center',
+      marginBottom: 48,
+    },
+    logo: {
+      fontSize: 24,
+      fontFamily: 'Poppins-Bold',
+      color: colors.primary,
+      marginBottom: 24,
+    },
+    title: {
+      fontSize: 28,
+      fontFamily: 'Poppins-Bold',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    options: {
+      flex: 1,
+      gap: 16,
+    },
+    genderOption: {
+      backgroundColor: colors.surfaceVariant,
+      borderRadius: 16,
+      padding: 24,
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: 'transparent',
+    },
+    genderOptionSelected: {
+      backgroundColor: colors.primaryLight,
+      borderColor: colors.primary,
+    },
+    genderIcon: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      backgroundColor: colors.background,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    genderEmoji: {
+      fontSize: 32,
+    },
+    genderText: {
+      fontSize: 18,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      marginBottom: 8,
+    },
+    genderTextSelected: {
+      color: colors.primary,
+    },
+    genderSubtext: {
+      fontSize: 14,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+      textAlign: 'center',
+    },
+    genderSubtextSelected: {
+      color: colors.textSecondary,
+    },
+    footer: {
+      gap: 12,
+    },
+    continueButton: {
+      backgroundColor: colors.primary,
+      borderRadius: 50,
+      width: 56,
+      height: 56,
+      justifyContent: 'center',
+      alignItems: 'center',
+      alignSelf: 'center',
+    },
+    continueButtonDisabled: {
+      backgroundColor: colors.divider,
+    },
+    continueButtonText: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: '#FFFFFF',
+    },
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <ArrowLeft size={24} color="#374151" />
+          <ArrowLeft size={24} color={colors.textSecondary} />
         </TouchableOpacity>
 
         <View style={styles.header}>
@@ -89,100 +195,3 @@ export default function GenderSelection() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 40,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F9FAFB',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 60,
-  },
-  logo: {
-    fontSize: 24,
-    fontFamily: 'Poppins-Bold',
-    color: '#2DD4BF',
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontFamily: 'Poppins-Bold',
-    color: '#111827',
-    textAlign: 'center',
-  },
-  options: {
-    flex: 1,
-    justifyContent: 'center',
-    gap: 24,
-  },
-  genderOption: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  genderOptionSelected: {
-    backgroundColor: '#FFF7ED',
-    borderColor: '#FB923C',
-  },
-  genderIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  genderEmoji: {
-    fontSize: 40,
-  },
-  genderText: {
-    fontSize: 20,
-    fontFamily: 'Poppins-SemiBold',
-    color: '#111827',
-    marginBottom: 8,
-  },
-  genderTextSelected: {
-    color: '#FB923C',
-  },
-  genderSubtext: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-    textAlign: 'center',
-  },
-  genderSubtextSelected: {
-    color: '#FB923C',
-  },
-  continueButton: {
-    backgroundColor: '#2DD4BF',
-    borderRadius: 50,
-    width: 56,
-    height: 56,
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf: 'center',
-  },
-  continueButtonDisabled: {
-    backgroundColor: '#D1D5DB',
-  },
-});
