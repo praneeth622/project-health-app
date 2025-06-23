@@ -51,12 +51,17 @@ export default function UserHeader({ userName, date, showMore = false, showCalen
       gap: 8,
     },
     actionButton: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
+      width: 44, // Increased from 40 for better touch target
+      height: 44, // Increased from 40 for better touch target
+      borderRadius: 22,
       backgroundColor: colors.surfaceVariant,
       justifyContent: 'center',
       alignItems: 'center',
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
     },
   });
   
@@ -74,12 +79,24 @@ export default function UserHeader({ userName, date, showMore = false, showCalen
       </View>
       <View style={styles.actions}>
         {showCalendar && (
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            accessibilityRole="button"
+            accessibilityLabel="Open calendar"
+            accessibilityHint="View calendar and schedule"
+            activeOpacity={0.7}
+          >
             <Calendar size={24} color={colors.textSecondary} />
           </TouchableOpacity>
         )}
         {showMore && (
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            accessibilityRole="button"
+            accessibilityLabel="More options"
+            accessibilityHint="View additional menu options"
+            activeOpacity={0.7}
+          >
             <MoreHorizontal size={24} color={colors.textSecondary} />
           </TouchableOpacity>
         )}

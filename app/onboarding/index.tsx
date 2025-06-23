@@ -65,10 +65,17 @@ export default function OnboardingWelcome() {
       backgroundColor: colors.primary,
       borderRadius: 12,
       height: 56,
+      minHeight: 56, // Ensure minimum touch target
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
       gap: 8,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+      paddingHorizontal: 16, // Add horizontal padding for better responsiveness
     },
     continueButtonText: {
       fontSize: 16,
@@ -81,8 +88,18 @@ export default function OnboardingWelcome() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.logo}>HealYou</Text>
-          <Text style={styles.title}>Let's get to know you better</Text>
+          <Text 
+            style={styles.logo}
+            accessibilityRole="header"
+          >
+            HealYou
+          </Text>
+          <Text 
+            style={styles.title}
+            accessibilityRole="header"
+          >
+            Let's get to know you better
+          </Text>
           <Text style={styles.subtitle}>
             We'll ask you a few questions to personalize your fitness experience
           </Text>
@@ -97,6 +114,10 @@ export default function OnboardingWelcome() {
         <TouchableOpacity
           style={styles.continueButton}
           onPress={() => router.push('/onboarding/gender')}
+          accessibilityRole="button"
+          accessibilityLabel="Get Started with onboarding"
+          accessibilityHint="Navigate to gender selection screen"
+          activeOpacity={0.8}
         >
           <Text style={styles.continueButtonText}>Get Started</Text>
           <ArrowRight size={20} color="#FFFFFF" />

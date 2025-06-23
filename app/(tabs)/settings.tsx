@@ -50,9 +50,9 @@ export default function SettingsScreen() {
       paddingBottom: 20,
     },
     backButton: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
+      width: 44, // Increased for better touch target
+      height: 44, // Increased for better touch target
+      borderRadius: 22,
       backgroundColor: colors.surfaceVariant,
       justifyContent: 'center',
       alignItems: 'center',
@@ -216,6 +216,8 @@ export default function SettingsScreen() {
       paddingVertical: 16,
       borderRadius: 12,
       alignItems: 'center',
+      minHeight: 56, // Ensure minimum touch target
+      paddingHorizontal: 16, // Add horizontal padding for better responsiveness
     },
     saveButtonText: {
       fontSize: 16,
@@ -228,10 +230,15 @@ export default function SettingsScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton}>
-            <ArrowLeft size={24} color={colors.text} />
-          </TouchableOpacity>
+        <View style={styles.header}>        <TouchableOpacity 
+          style={styles.backButton}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          accessibilityHint="Return to previous screen"
+          activeOpacity={0.7}
+        >
+          <ArrowLeft size={24} color={colors.text} />
+        </TouchableOpacity>
           <Text style={styles.headerTitle}>Settings</Text>
           <View style={styles.placeholder} />
         </View>
@@ -296,13 +303,25 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Settings</Text>
           
-          <TouchableOpacity style={styles.settingItem}>
+          <TouchableOpacity 
+            style={styles.settingItem}
+            accessibilityRole="button"
+            accessibilityLabel="Location settings"
+            accessibilityHint="Manage your location preferences"
+            activeOpacity={0.7}
+          >
             <MapPin size={20} color={colors.textTertiary} />
             <Text style={styles.settingText}>Location</Text>
             <ChevronRight size={20} color={colors.textTertiary} />
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.settingItem}>
+          <TouchableOpacity 
+            style={styles.settingItem}
+            accessibilityRole="button"
+            accessibilityLabel="Notification settings"
+            accessibilityHint="Manage your notification preferences"
+            activeOpacity={0.7}
+          >
             <Bell size={20} color={colors.textTertiary} />
             <Text style={styles.settingText}>Notification</Text>
             <ChevronRight size={20} color={colors.textTertiary} />
@@ -372,7 +391,13 @@ export default function SettingsScreen() {
             </View>
           </View>
           
-          <TouchableOpacity style={styles.saveButton}>
+          <TouchableOpacity 
+            style={styles.saveButton}
+            accessibilityRole="button"
+            accessibilityLabel="Save changes"
+            accessibilityHint="Save your profile changes"
+            activeOpacity={0.8}
+          >
             <Text style={styles.saveButtonText}>Save</Text>
           </TouchableOpacity>
         </View>

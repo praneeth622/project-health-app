@@ -79,7 +79,11 @@ export default function LoginScreen() {
       color: colors.text,
     },
     eyeIcon: {
-      padding: 4,
+      padding: 8, // Increased touch target
+      minWidth: 44, // Ensure minimum touch target
+      minHeight: 44, // Ensure minimum touch target
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     forgotPassword: {
       alignSelf: 'flex-end',
@@ -94,9 +98,11 @@ export default function LoginScreen() {
       backgroundColor: colors.primary,
       borderRadius: 12,
       height: 56,
+      minHeight: 56, // Ensure minimum touch target
       justifyContent: 'center',
       alignItems: 'center',
       marginBottom: 24,
+      paddingHorizontal: 16, // Add horizontal padding for better responsiveness
     },
     loginButtonDisabled: {
       opacity: 0.7,
@@ -176,6 +182,8 @@ export default function LoginScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
               placeholderTextColor={colors.textTertiary}
+              accessibilityLabel="Email address"
+              accessibilityHint="Enter your email address"
             />
           </View>
 
@@ -188,10 +196,16 @@ export default function LoginScreen() {
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
               placeholderTextColor={colors.textTertiary}
+              accessibilityLabel="Password"
+              accessibilityHint="Enter your password"
             />
             <TouchableOpacity
               style={styles.eyeIcon}
               onPress={() => setShowPassword(!showPassword)}
+              accessibilityRole="button"
+              accessibilityLabel={showPassword ? "Hide password" : "Show password"}
+              accessibilityHint={showPassword ? "Hide the password text" : "Show the password text"}
+              activeOpacity={0.7}
             >
               {showPassword ? (
                 <EyeOff size={20} color={colors.textTertiary} />
@@ -201,7 +215,13 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.forgotPassword}>
+          <TouchableOpacity 
+            style={styles.forgotPassword}
+            accessibilityRole="button"
+            accessibilityLabel="Forgot Password"
+            accessibilityHint="Reset your password"
+            activeOpacity={0.7}
+          >
             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
           </TouchableOpacity>
 
@@ -209,6 +229,11 @@ export default function LoginScreen() {
             style={[styles.loginButton, loading && styles.loginButtonDisabled]}
             onPress={handleLogin}
             disabled={loading}
+            accessibilityRole="button"
+            accessibilityLabel={loading ? "Signing In..." : "Sign In"}
+            accessibilityHint="Sign in to your account"
+            accessibilityState={{ disabled: loading }}
+            activeOpacity={loading ? 1 : 0.8}
           >
             <Text style={styles.loginButtonText}>
               {loading ? 'Signing In...' : 'Sign In'}
@@ -225,12 +250,20 @@ export default function LoginScreen() {
             <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Google')}
+              accessibilityRole="button"
+              accessibilityLabel="Sign in with Google"
+              accessibilityHint="Use your Google account to sign in"
+              activeOpacity={0.8}
             >
               <Text style={styles.socialButtonText}>Google</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialLogin('Apple')}
+              accessibilityRole="button"
+              accessibilityLabel="Sign in with Apple"
+              accessibilityHint="Use your Apple ID to sign in"
+              activeOpacity={0.8}
             >
               <Text style={styles.socialButtonText}>Apple</Text>
             </TouchableOpacity>

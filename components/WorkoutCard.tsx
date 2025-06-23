@@ -93,12 +93,24 @@ export default function WorkoutCard({ title, week, workoutNumber, nextExercise, 
     },
   });
   return (
-    <TouchableOpacity style={[styles.container, { backgroundColor: cardBg }]} onPress={onPress}>
+    <TouchableOpacity 
+      style={[styles.container, { backgroundColor: cardBg }]} 
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${title} workout, ${week}, ${workoutNumber}. Next exercise: ${nextExercise}`}
+      accessibilityHint="Tap to start this workout"
+      activeOpacity={0.8}
+    >
       <View style={styles.header}>
         <View style={styles.iconContainer}>
           <Zap size={20} color={colors.background} />
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="More options"
+          accessibilityHint="View additional workout options"
+          activeOpacity={0.7}
+        >
           <MoreHorizontal size={20} color={colors.background} />
         </TouchableOpacity>
       </View>

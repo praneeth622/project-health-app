@@ -27,9 +27,9 @@ export default function GenderSelection() {
       paddingBottom: 40,
     },
     backButton: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
+      width: 44, // Increased for better touch target
+      height: 44, // Increased for better touch target
+      borderRadius: 22,
       backgroundColor: colors.surfaceVariant,
       justifyContent: 'center',
       alignItems: 'center',
@@ -59,13 +59,22 @@ export default function GenderSelection() {
       backgroundColor: colors.surfaceVariant,
       borderRadius: 16,
       padding: 24,
+      minHeight: 120, // Ensure adequate touch target size
       alignItems: 'center',
       borderWidth: 2,
       borderColor: 'transparent',
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 1,
     },
     genderOptionSelected: {
       backgroundColor: colors.primaryLight,
       borderColor: colors.primary,
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
     },
     genderIcon: {
       width: 80,
@@ -105,12 +114,21 @@ export default function GenderSelection() {
       borderRadius: 50,
       width: 56,
       height: 56,
+      minWidth: 56, // Ensure minimum touch target
+      minHeight: 56, // Ensure minimum touch target
       justifyContent: 'center',
       alignItems: 'center',
       alignSelf: 'center',
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
     },
     continueButtonDisabled: {
       backgroundColor: colors.divider,
+      shadowOpacity: 0,
+      elevation: 0,
     },
     continueButtonText: {
       fontSize: 16,
@@ -122,7 +140,14 @@ export default function GenderSelection() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          accessibilityHint="Return to previous screen"
+          activeOpacity={0.7}
+        >
           <ArrowLeft size={24} color={colors.textSecondary} />
         </TouchableOpacity>
 
@@ -138,6 +163,11 @@ export default function GenderSelection() {
               selectedGender === 'male' && styles.genderOptionSelected,
             ]}
             onPress={() => setSelectedGender('male')}
+            accessibilityRole="button"
+            accessibilityLabel="Select Male"
+            accessibilityHint="Choose male as your gender"
+            accessibilityState={{ selected: selectedGender === 'male' }}
+            activeOpacity={0.7}
           >
             <View style={styles.genderIcon}>
               <Text style={styles.genderEmoji}>👨</Text>
@@ -162,6 +192,11 @@ export default function GenderSelection() {
               selectedGender === 'female' && styles.genderOptionSelected,
             ]}
             onPress={() => setSelectedGender('female')}
+            accessibilityRole="button"
+            accessibilityLabel="Select Female"
+            accessibilityHint="Choose female as your gender"
+            accessibilityState={{ selected: selectedGender === 'female' }}
+            activeOpacity={0.7}
           >
             <View style={styles.genderIcon}>
               <Text style={styles.genderEmoji}>👩</Text>
@@ -179,6 +214,35 @@ export default function GenderSelection() {
               You have chosen the platform as female!
             </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.genderOption,
+              selectedGender === 'other' && styles.genderOptionSelected,
+            ]}
+            onPress={() => setSelectedGender('other')}
+            accessibilityRole="button"
+            accessibilityLabel="Select Other"
+            accessibilityHint="Choose other as your gender"
+            accessibilityState={{ selected: selectedGender === 'other' }}
+            activeOpacity={0.7}
+          >
+            <View style={styles.genderIcon}>
+              <Text style={styles.genderEmoji}>🧑</Text>
+            </View>
+            <Text style={[
+              styles.genderText,
+              selectedGender === 'other' && styles.genderTextSelected,
+            ]}>
+              Other
+            </Text>
+            <Text style={[
+              styles.genderSubtext,
+              selectedGender === 'other' && styles.genderSubtextSelected,
+            ]}>
+              You have chosen other as your gender preference!
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity
@@ -188,6 +252,11 @@ export default function GenderSelection() {
           ]}
           onPress={handleContinue}
           disabled={!selectedGender}
+          accessibilityRole="button"
+          accessibilityLabel="Continue to next step"
+          accessibilityHint="Proceed to age selection"
+          accessibilityState={{ disabled: !selectedGender }}
+          activeOpacity={!selectedGender ? 1 : 0.7}
         >
           <ArrowRight size={24} color="#FFFFFF" />
         </TouchableOpacity>

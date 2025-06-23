@@ -1,96 +1,282 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import UserHeader from '@/components/UserHeader';
 import CircularProgress from '@/components/CircularProgress';
-import { MapPin, Trophy, Medal, Award } from 'lucide-react-native';
-import { useTheme } from '@/contexts/ThemeContext';
+import { MapPin, Trophy, Medal, Award, Target, Flame, Footprints, Clock, TrendingUp, Calendar, BarChart3, Activity } from 'lucide-react-native';
+import { Colors, useTheme } from '@/contexts/ThemeContext';
+
+const { width } = Dimensions.get('window');
 
 export default function ActivityScreen() {
   const { colors } = useTheme();
+  const [selectedTab, setSelectedTab] = useState('Today');
+  const styles = createStyles(colors);
   
+  const tabs = ['Today', 'Week', 'Month'];
+  
+  const dailyStats = [
+    { label: 'Steps', value: '8,547', target: '10,000', icon: Footprints, color: '#4ECDC4', progress: 85 },
+    { label: 'Calories', value: '524', target: '650', icon: Flame, color: '#FF6B6B', progress: 81 },
+    { label: 'Distance', value: '6.2', target: '8.0', icon: MapPin, color: '#8B5CF6', progress: 78 },
+    { label: 'Active Time', value: '47', target: '60', icon: Clock, color: '#F59E0B', progress: 78 }
+  ];
+
+  const recentActivities = [
+    { time: '2 hours ago', activity: 'Morning Run', duration: '25 min', calories: '142 kcal', icon: '🏃‍♀️' },
+    { time: '5 hours ago', activity: 'Yoga Session', duration: '45 min', calories: '98 kcal', icon: '🧘‍♀️' },
+    { time: 'Yesterday', activity: 'Strength Training', duration: '60 min', calories: '256 kcal', icon: '💪' },
+    { time: '2 days ago', activity: 'Swimming', duration: '40 min', calories: '198 kcal', icon: '🏊‍♀️' }  ];
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <UserHeader userName="Linh" date="Thursday, 08 July" showMore />
-        
-        {/* Steps Challenge */}
-        <View style={[styles.challengeCard, { backgroundColor: colors.surface }]}>
+        {/* Enhanced Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Activity</Text>
+          <Text style={styles.headerSubtitle}>Track your daily progress</Text>
+        </View>
+
+        {/* Time Period Tabs */}
+        <View style={styles.tabContainer}>
+          {tabs.map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              style={[styles.tab, selectedTab === tab && styles.activeTab]}
+              onPress={() => setSelectedTab(tab)}
+            >
+              <Text style={[styles.tabText, selectedTab === tab && styles.activeTabText]}>
+                {tab}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Daily Stats Grid */}
+        <View style={styles.statsGrid}>
+          {dailyStats.map((stat, index) => {
+            const IconComponent = stat.icon;
+            return (
+              <TouchableOpacity key={index} style={styles.statCard} activeOpacity={0.8}>
+                <View style={styles.statHeader}>
+                  <View style={styles.statLabelRow}>
+                    <View style={[styles.statIcon, { backgroundColor: stat.color + '20' }]}>
+                      <IconComponent size={18} color={stat.color} strokeWidth={2.5} />
+                    </View>
+                    <Text style={styles.statLabel}>{stat.label}</Text>
+                  </View>
+                  <View style={styles.statBadge}>
+                    <Text style={styles.statBadgeText}>{stat.progress}%</Text>
+                  </View>
+                </View>
+                <Text style={styles.statValue}>
+                  {stat.value}
+                  {stat.label === 'Distance' && <Text style={styles.statTarget}> km</Text>}
+                  {stat.label === 'Active Time' && <Text style={styles.statTarget}> min</Text>}
+                </Text>
+                <Text style={styles.statTarget}>Goal: {stat.target}</Text>
+                <View style={styles.progressBar}>
+                  <View 
+                    style={[
+                      styles.progressFill, 
+                      { width: `${stat.progress}%`, backgroundColor: stat.color }
+                    ]} 
+                  />
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* Enhanced Challenge Card */}
+        <TouchableOpacity style={styles.challengeCard} activeOpacity={0.9}>
           <View style={styles.challengeHeader}>
-            <View style={[styles.challengeIcon, { backgroundColor: colors.primaryLight }]}>
-              <Text style={styles.challengeEmoji}>👟</Text>
+            <View style={styles.challengeIcon}>
+              <Text style={styles.challengeEmoji}>🎯</Text>
             </View>
-            <Text style={[styles.challengeTitle, { color: colors.text }]}>Steps 2,000+</Text>
+            <View style={styles.challengeTitleContainer}>
+              <Text style={styles.challengeTitle}>Daily Challenge</Text>
+              <Text style={styles.challengeSubtitle}>Steps Goal</Text>
+            </View>
+            <View style={styles.challengeBadge}>
+              <Text style={styles.challengeBadgeText}>85%</Text>
+            </View>
           </View>
-          <Text style={[styles.challengeSubtitle, { color: colors.text }]}>Let's keep going</Text>
-          <Text style={[styles.challengeDescription, { color: colors.textSecondary }]}>Keep participating in weekly challenges</Text>
-        </View>
-
-        {/* Circular Progress */}
-        <View style={styles.progressContainer}>
-          <CircularProgress
-            size={200}
-            progress={75}
-            strokeWidth={8}
-            color="#FF6B82"
-          >
-            <View style={styles.progressContent}>
-              <Text style={styles.progressValue}>2900</Text>
-              <Text style={styles.progressLabel}>Kcal</Text>
+          <Text style={styles.challengeDescription}>
+            Complete 10,000 steps to unlock today's reward!
+          </Text>
+          <View style={styles.challengeProgress}>
+            <Text style={styles.challengeProgressText}>8,547 / 10,000 steps</Text>
+            <Text style={styles.challengeRemainingText}>1,453 steps to go</Text>
+          </View>
+          <View style={styles.progressBarContainer}>
+            <View style={styles.challengeProgressBar}>
+              <View style={[styles.progressFill, { width: '85%', backgroundColor: colors.primary }]} />
             </View>
-          </CircularProgress>
+            <View style={styles.progressDots}>
+              <View style={[styles.progressDot, { backgroundColor: colors.primary }]} />
+              <View style={[styles.progressDot, { backgroundColor: colors.primary }]} />
+              <View style={[styles.progressDot, { backgroundColor: colors.primary }]} />
+              <View style={[styles.progressDot, { backgroundColor: colors.surfaceVariant }]} />
+            </View>
+          </View>
+        </TouchableOpacity>
+
+        {/* Enhanced Circular Progress */}
+        <View style={styles.progressSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Today's Progress</Text>
+            <TouchableOpacity style={styles.progressMenuButton}>
+              <Text style={styles.progressMenuText}>•••</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.progressContainer}>
+            <CircularProgress
+              size={200}
+              progress={81}
+              strokeWidth={12}
+              color={colors.primary}
+              backgroundColor={colors.surfaceVariant}
+            >
+              <View style={styles.progressContent}>
+                <Text style={styles.progressValue}>524</Text>
+                <Text style={styles.progressLabel}>Calories Burned</Text>
+                <Text style={styles.progressTarget}>Goal: 650 kcal</Text>
+              </View>
+            </CircularProgress>
+            <View style={styles.progressStats}>
+              <View style={styles.progressStatItem}>
+                <Text style={styles.progressStatValue}>81%</Text>
+                <Text style={styles.progressStatLabel}>Complete</Text>
+              </View>
+              <View style={styles.progressStatDivider} />
+              <View style={styles.progressStatItem}>
+                <Text style={styles.progressStatValue}>126</Text>
+                <Text style={styles.progressStatLabel}>Remaining</Text>
+              </View>
+            </View>
+          </View>
         </View>
 
-        {/* Location Info */}
+        {/* Recent Activities Timeline */}
+        <View style={styles.activitiesContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Recent Activities</Text>
+            <TouchableOpacity style={styles.viewAllButton}>
+              <Text style={styles.seeAllText}>View All</Text>
+              <TrendingUp size={16} color={colors.primary} style={{ marginLeft: 4 }} />
+            </TouchableOpacity>
+          </View>
+          {recentActivities.map((activity, index) => (
+            <TouchableOpacity key={index} style={styles.activityItem} activeOpacity={0.7}>
+              <View style={styles.activityIcon}>
+                <Text style={styles.activityIconText}>{activity.icon}</Text>
+              </View>
+              <View style={styles.activityInfo}>
+                <Text style={styles.activityName}>{activity.activity}</Text>
+                <Text style={styles.activityTime}>{activity.time}</Text>
+              </View>
+              <View style={styles.activityStats}>
+                <Text style={styles.activityDuration}>{activity.duration}</Text>
+                <Text style={styles.activityCalories}>{activity.calories}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Enhanced Awards Section */}
+        <View style={styles.awardsContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Achievements</Text>
+            <TouchableOpacity style={styles.viewAllButton}>
+              <Text style={styles.seeAllText}>View All</Text>
+              <BarChart3 size={16} color={colors.primary} style={{ marginLeft: 4 }} />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.sectionSubtitle}>You've earned 6/12 achievements this month.</Text>
+          
+          <View style={styles.awardsGrid}>
+            <View style={[styles.awardCard, styles.awardActive]}>
+              <View style={styles.awardIconContainer}>
+                <Trophy size={24} color="#FFFFFF" />
+              </View>
+              <Text style={[styles.awardTitle, styles.awardActiveTitle]}>7-Day Streak</Text>
+              <Text style={[styles.awardSubtitle, styles.awardActiveSubtitle]}>Consistency Master</Text>
+              <View style={styles.awardProgress}>
+                <View style={styles.awardProgressBar}>
+                  <View style={[styles.awardProgressFill, { width: '100%' }]} />
+                </View>
+              </View>
+            </View>
+            <View style={[styles.awardCard, styles.awardActive]}>
+              <View style={styles.awardIconContainer}>
+                <Medal size={24} color="#FFFFFF" />
+              </View>
+              <Text style={[styles.awardTitle, styles.awardActiveTitle]}>Goal Crusher</Text>
+              <Text style={[styles.awardSubtitle, styles.awardActiveSubtitle]}>200% Target</Text>
+              <View style={styles.awardProgress}>
+                <View style={styles.awardProgressBar}>
+                  <View style={[styles.awardProgressFill, { width: '100%' }]} />
+                </View>
+              </View>
+            </View>
+            <View style={[styles.awardCard, styles.awardActive]}>
+              <View style={styles.awardIconContainer}>
+                <Award size={24} color="#FFFFFF" />
+              </View>
+              <Text style={[styles.awardTitle, styles.awardActiveTitle]}>New Record</Text>
+              <Text style={[styles.awardSubtitle, styles.awardActiveSubtitle]}>Personal Best</Text>
+              <View style={styles.awardProgress}>
+                <View style={styles.awardProgressBar}>
+                  <View style={[styles.awardProgressFill, { width: '100%' }]} />
+                </View>
+              </View>
+            </View>
+            <View style={styles.awardCard}>
+              <View style={[styles.awardIconContainer, { backgroundColor: colors.surfaceVariant }]}>
+                <Target size={24} color={colors.textSecondary} />
+              </View>
+              <Text style={styles.awardTitle}>Marathon Ready</Text>
+              <Text style={styles.awardSubtitle}>Complete 42km total</Text>
+              <View style={styles.awardProgress}>
+                <View style={styles.awardProgressBar}>
+                  <View style={[styles.awardProgressFill, { width: '60%', backgroundColor: colors.primary }]} />
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Enhanced Location & Stats */}
         <View style={styles.locationCard}>
           <View style={styles.locationHeader}>
-            <MapPin size={20} color="#6B7280" />
+            <MapPin size={20} color={colors.primary} />
             <Text style={styles.locationText}>Ottawa, Canada</Text>
           </View>
           <View style={styles.locationStats}>
             <View style={styles.locationStat}>
-              <Text style={styles.locationStatValue}>12,456</Text>
-              <Text style={styles.locationStatLabel}>Active Today</Text>
+              <Text style={styles.locationStatValue}>2,847</Text>
+              <Text style={styles.locationStatLabel}>Active Users</Text>
             </View>
             <View style={styles.locationStat}>
-              <Text style={styles.locationStatValue}>Oct 12,456</Text>
-              <Text style={styles.locationStatLabel}>Active Today</Text>
+              <Text style={styles.locationStatValue}>15.2k</Text>
+              <Text style={styles.locationStatLabel}>Total Steps</Text>
+            </View>
+            <View style={styles.locationStat}>
+              <Text style={styles.locationStatValue}>#3</Text>
+              <Text style={styles.locationStatLabel}>Your Rank</Text>
             </View>
           </View>
         </View>
 
-        {/* Awards Section */}
-        <View style={styles.awardsContainer}>
-          <Text style={styles.sectionTitle}>Rewards</Text>
-          <Text style={styles.sectionSubtitle}>You've earned 4/10 of all Rewards.</Text>
-          
-          <View style={styles.awardsGrid}>
-            <View style={[styles.awardCard, styles.awardActive]}>
-              <Trophy size={24} color="#FFFFFF" />
-              <Text style={styles.awardTitle}>7-Workout Week</Text>
-              <Text style={styles.awardSubtitle}>Week</Text>
-            </View>
-            <View style={[styles.awardCard, styles.awardActive]}>
-              <Medal size={24} color="#FFFFFF" />
-              <Text style={styles.awardTitle}>Move Goal 200%</Text>
-              <Text style={styles.awardSubtitle}>Record</Text>
-            </View>
-            <View style={[styles.awardCard, styles.awardActive]}>
-              <Award size={24} color="#FFFFFF" />
-              <Text style={styles.awardTitle}>New Move Record</Text>
-              <Text style={styles.awardSubtitle}>Move Str</Text>
-            </View>
-            <View style={styles.awardCard}>
-              <Trophy size={24} color="#D1D5DB" />
-              <Text style={[styles.awardTitle, styles.awardInactive]}>Longest Move Str</Text>
-              <Text style={[styles.awardSubtitle, styles.awardInactive]}>Move Str</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Week Winner */}
+        {/* Enhanced Week Winner */}
         <View style={styles.winnerContainer}>
-          <Text style={styles.sectionTitle}>Week winner</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Week Champion</Text>
+            <TouchableOpacity>
+              <TrendingUp size={20} color={colors.primary} />
+            </TouchableOpacity>
+          </View>
           <View style={styles.winnerCard}>
             <View style={styles.winnerInfo}>
               <View style={styles.winnerAvatar}>
@@ -98,18 +284,23 @@ export default function ActivityScreen() {
               </View>
               <View style={styles.winnerDetails}>
                 <Text style={styles.winnerName}>Alfred Owen</Text>
-                <Text style={styles.winnerStats}>8 workouts</Text>
+                <Text style={styles.winnerStats}>12 workouts • 847 min</Text>
               </View>
             </View>
             <View style={styles.winnerTime}>
-              <Text style={styles.winnerTimeText}>⏱️ 4h 20 min</Text>
+              <Text style={styles.winnerTimeText}>🏆 Champion</Text>
             </View>
           </View>
         </View>
 
-        {/* Your Route */}
+        {/* Enhanced Route */}
         <View style={styles.routeContainer}>
-          <Text style={styles.sectionTitle}>Your rute</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Today's Route</Text>
+            <TouchableOpacity>
+              <Calendar size={20} color={colors.primary} />
+            </TouchableOpacity>
+          </View>
           <View style={styles.routeCard}>
             <View style={styles.routeMap}>
               <View style={styles.routeMapPlaceholder}>
@@ -118,282 +309,658 @@ export default function ActivityScreen() {
               </View>
             </View>
             <View style={styles.routeInfo}>
-              <Text style={styles.routeDistance}>20.4 km</Text>
-              <Text style={styles.routeCalories}>620.68 Kcal</Text>
+              <Text style={styles.routeDistance}>6.2 km</Text>
+              <Text style={styles.routeCalories}>524 kcal burned</Text>
             </View>
           </View>
         </View>
 
-        {/* Join Button */}
-        <TouchableOpacity style={styles.joinButton}>
-          <Text style={styles.joinButtonText}>Join</Text>
+        {/* Enhanced Join Button */}
+        <TouchableOpacity style={styles.joinButton} activeOpacity={0.8}>
+          <Activity size={22} color="#FFFFFF" style={{ marginRight: 10 }} />
+          <Text style={styles.joinButtonText}>Start New Activity</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  challengeCard: {
-    backgroundColor: '#FFF7ED',
-    margin: 20,
-    padding: 20,
-    borderRadius: 16,
-  },
-  challengeHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  challengeIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#FF6B82',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  challengeEmoji: {
-    fontSize: 16,
-  },
-  challengeTitle: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: '#111827',
-  },
-  challengeSubtitle: {
-    fontSize: 18,
-    fontFamily: 'Inter-Bold',
-    color: '#111827',
-    marginBottom: 4,
-  },
-  challengeDescription: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-  },
-  progressContainer: {
-    alignItems: 'center',
-    paddingVertical: 32,
-  },
-  progressContent: {
-    alignItems: 'center',
-  },
-  progressValue: {
-    fontSize: 28,
-    fontFamily: 'Inter-Bold',
-    color: '#111827',
-  },
-  progressLabel: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-    marginTop: 4,
-  },
-  locationCard: {
-    backgroundColor: '#F9FAFB',
-    margin: 20,
-    padding: 20,
-    borderRadius: 16,
-  },
-  locationHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  locationText: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: '#111827',
-    marginLeft: 8,
-  },
-  locationStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  locationStat: {
-    alignItems: 'center',
-  },
-  locationStatValue: {
-    fontSize: 18,
-    fontFamily: 'Inter-Bold',
-    color: '#111827',
-    marginBottom: 4,
-  },
-  locationStatLabel: {
-    fontSize: 12,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-  },
-  awardsContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 32,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontFamily: 'Inter-Bold',
-    color: '#111827',
-    marginBottom: 8,
-  },
-  sectionSubtitle: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-    marginBottom: 16,
-  },
-  awardsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  awardCard: {
-    width: '48%',
-    backgroundColor: '#F3F4F6',
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  awardActive: {
-    backgroundColor: '#FF6B82',
-  },
-  awardTitle: {
-    fontSize: 12,
-    fontFamily: 'Inter-SemiBold',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginTop: 8,
-    marginBottom: 4,
-  },
-  awardSubtitle: {
-    fontSize: 10,
-    fontFamily: 'Inter-Regular',
-    color: '#FFFFFF',
-    opacity: 0.8,
-  },
-  awardInactive: {
-    color: '#9CA3AF',
-  },
-  winnerContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 32,
-  },
-  winnerCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-    padding: 16,
-    borderRadius: 12,
-  },
-  winnerInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  winnerAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#FF6B82',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  winnerInitials: {
-    fontSize: 16,
-    fontFamily: 'Inter-Bold',
-    color: '#FFFFFF',
-  },
-  winnerDetails: {
-    justifyContent: 'center',
-  },
-  winnerName: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: '#111827',
-    marginBottom: 2,
-  },
-  winnerStats: {
-    fontSize: 12,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-  },
-  winnerTime: {
-    alignItems: 'flex-end',
-  },
-  winnerTimeText: {
-    fontSize: 12,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-  },
-  routeContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 32,
-  },
-  routeCard: {
-    backgroundColor: '#F9FAFB',
-    padding: 16,
-    borderRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  routeMap: {
-    flex: 1,
-    height: 60,
-    marginRight: 16,
-  },
-  routeMapPlaceholder: {
-    flex: 1,
-    backgroundColor: '#E5E7EB',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  routePoint: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#FF6B82',
-  },
-  routePath: {
-    position: 'absolute',
-    width: 2,
-    height: 30,
-    backgroundColor: '#FF6B82',
-    top: 15,
-    borderRadius: 1,
-  },
-  routeInfo: {
-    alignItems: 'flex-end',
-  },
-  routeDistance: {
-    fontSize: 18,
-    fontFamily: 'Inter-Bold',
-    color: '#111827',
-    marginBottom: 4,
-  },
-  routeCalories: {
-    fontSize: 12,
-    fontFamily: 'Inter-Regular',
-    color: '#6B7280',
-  },
-  joinButton: {
-    backgroundColor: '#FF6B82',
-    marginHorizontal: 20,
-    marginBottom: 32,
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  joinButtonText: {
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    color: '#FFFFFF',
-  },
-});
+  const styles = ({colors}: {colors: Colors}) => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      paddingHorizontal: 20,
+      paddingTop: 20,
+      paddingBottom: 28,
+      backgroundColor: colors.cardBackground,
+      borderBottomLeftRadius: 24,
+      borderBottomRightRadius: 24,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    headerTitle: {
+      fontSize: 28,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+      marginBottom: 8,
+    },
+    headerSubtitle: {
+      fontSize: 16,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    tabContainer: {
+      flexDirection: 'row',
+      marginHorizontal: 20,
+      marginTop: 20,
+      marginBottom: 28,
+      backgroundColor: colors.surfaceVariant,
+      borderRadius: 16,
+      padding: 6,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    tab: {
+      flex: 1,
+      paddingVertical: 14,
+      alignItems: 'center',
+      borderRadius: 12,
+    },
+    activeTab: {
+      backgroundColor: colors.primary,
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    tabText: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      color: colors.textSecondary,
+    },
+    activeTabText: {
+      color: '#FFFFFF',
+    },
+    statsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      paddingHorizontal: 16,
+      marginBottom: 24,
+      gap: 8,
+    },
+    statCard: {
+      width: (width - 48) / 2,
+      backgroundColor: colors.cardBackground,
+      borderRadius: 16,
+      padding: 16,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    statHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 12,
+    },
+    statLabelRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    statIcon: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 8,
+    },
+    statBadge: {
+      backgroundColor: colors.primary + '20',
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 12,
+    },
+    statBadgeText: {
+      fontSize: 11,
+      fontFamily: 'Inter-Bold',
+      color: colors.primary,
+    },
+    statLabel: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.textSecondary,
+    },
+    statValue: {
+      fontSize: 20,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+      marginBottom: 4,
+    },
+    statTarget: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+      marginBottom: 8,
+    },
+    progressBar: {
+      height: 4,
+      backgroundColor: colors.surfaceVariant,
+      borderRadius: 2,
+      overflow: 'hidden',
+    },
+    progressFill: {
+      height: '100%',
+      borderRadius: 2,
+    },
+    challengeCard: {
+      backgroundColor: colors.cardBackground,
+      marginHorizontal: 20,
+      padding: 20,
+      borderRadius: 16,
+      marginBottom: 24,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    challengeHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    challengeIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: colors.primary + '20',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 16,
+    },
+    challengeEmoji: {
+      fontSize: 20,
+      fontFamily: 'Inter-Bold',
+    },
+    challengeTitleContainer: {
+      flex: 1,
+    },
+    challengeTitle: {
+      fontSize: 18,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    challengeSubtitle: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.textSecondary,
+    },
+    challengeBadge: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 16,
+    },
+    challengeBadgeText: {
+      fontSize: 14,
+      fontFamily: 'Inter-Bold',
+      color: '#FFFFFF',
+    },
+    challengeDescription: {
+      fontSize: 14,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+      marginBottom: 20,
+      lineHeight: 20,
+    },
+    challengeProgress: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    challengeProgressText: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+    },
+    challengeRemainingText: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    progressBarContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+    challengeProgressBar: {
+      flex: 1,
+      height: 6,
+      backgroundColor: colors.surfaceVariant,
+      borderRadius: 3,
+      overflow: 'hidden',
+    },
+    progressDots: {
+      flexDirection: 'row',
+      gap: 4,
+    },
+    progressDot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+    },
+    progressSection: {
+      marginBottom: 32,
+    },
+    progressContainer: {
+      alignItems: 'center',
+      paddingVertical: 24,
+      paddingHorizontal: 20,
+    },
+    progressContent: {
+      alignItems: 'center',
+    },
+    progressValue: {
+      fontSize: 36,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+    },
+    progressLabel: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.textSecondary,
+      marginTop: 8,
+    },
+    progressTarget: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textTertiary,
+      marginTop: 4,
+    },
+    progressStats: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 24,
+      backgroundColor: colors.cardBackground,
+      borderRadius: 16,
+      padding: 16,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    progressStatItem: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    progressStatValue: {
+      fontSize: 18,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+    },
+    progressStatLabel: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+      marginTop: 4,
+    },
+    progressStatDivider: {
+      width: 1,
+      height: 32,
+      backgroundColor: colors.surfaceVariant,
+      marginHorizontal: 16,
+    },
+    progressMenuButton: {
+      padding: 4,
+    },
+    progressMenuText: {
+      fontSize: 16,
+      fontFamily: 'Inter-Bold',
+      color: colors.textSecondary,
+    },
+    viewAllButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      backgroundColor: colors.primary + '10',
+      borderRadius: 16,
+    },
+    awardIconContainer: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    awardProgress: {
+      marginTop: 8,
+      width: '100%',
+    },
+    awardProgressBar: {
+      height: 3,
+      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      borderRadius: 2,
+      overflow: 'hidden',
+    },
+    awardProgressFill: {
+      height: '100%',
+      backgroundColor: '#FFFFFF',
+      borderRadius: 2,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      marginBottom: 16,
+    },
+    sectionTitle: {
+      fontSize: 20,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+    },
+    sectionSubtitle: {
+      fontSize: 14,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+      paddingHorizontal: 20,
+      marginBottom: 16,
+    },
+    seeAllText: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      color: colors.primary,
+    },
+    awardsContainer: {
+      paddingHorizontal: 20,
+      marginBottom: 32,
+    },
+    awardsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12,
+    },
+    awardCard: {
+      width: (width - 64) / 2,
+      backgroundColor: colors.surfaceVariant,
+      padding: 16,
+      borderRadius: 12,
+      alignItems: 'center',
+    },
+    awardActive: {
+      backgroundColor: colors.primary,
+    },
+    awardTitle: {
+      fontSize: 12,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginTop: 8,
+      marginBottom: 4,
+    },
+    awardActiveTitle: {
+      color: '#FFFFFF',
+    },
+    awardSubtitle: {
+      fontSize: 10,
+      fontFamily: 'Inter-Regular',
+      color: colors.textTertiary,
+    },
+    awardActiveSubtitle: {
+      color: '#FFFFFF',
+      opacity: 0.8,
+    },
+    activitiesContainer: {
+      paddingHorizontal: 20,
+      marginBottom: 32,
+    },
+    activityItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.cardBackground,
+      padding: 16,
+      borderRadius: 12,
+      marginBottom: 12,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    activityIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: colors.surfaceVariant,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 12,
+    },
+    activityIconText: {
+      fontSize: 20,
+    },
+    activityInfo: {
+      flex: 1,
+    },
+    activityName: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      marginBottom: 4,
+    },
+    activityTime: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    activityStats: {
+      alignItems: 'flex-end',
+    },
+    activityDuration: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    activityCalories: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    locationCard: {
+      backgroundColor: colors.cardBackground,
+      marginHorizontal: 20,
+      padding: 20,
+      borderRadius: 16,
+      marginBottom: 24,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    locationHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    locationText: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      marginLeft: 8,
+    },
+    locationStats: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+    locationStat: {
+      alignItems: 'center',
+    },
+    locationStatValue: {
+      fontSize: 18,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+      marginBottom: 4,
+    },
+    locationStatLabel: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    winnerContainer: {
+      paddingHorizontal: 20,
+      marginBottom: 32,
+    },
+    winnerCard: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: colors.cardBackground,
+      padding: 16,
+      borderRadius: 12,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    winnerInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    winnerAvatar: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 12,
+    },
+    winnerInitials: {
+      fontSize: 16,
+      fontFamily: 'Inter-Bold',
+      color: '#FFFFFF',
+    },
+    winnerDetails: {
+      justifyContent: 'center',
+    },
+    winnerName: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    winnerStats: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    winnerTime: {
+      alignItems: 'flex-end',
+    },
+    winnerTimeText: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    routeContainer: {
+      paddingHorizontal: 20,
+      marginBottom: 32,
+    },
+    routeCard: {
+      backgroundColor: colors.cardBackground,
+      padding: 16,
+      borderRadius: 12,
+      flexDirection: 'row',
+      alignItems: 'center',
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    routeMap: {
+      flex: 1,
+      height: 60,
+      marginRight: 16,
+    },
+    routeMapPlaceholder: {
+      flex: 1,
+      backgroundColor: colors.surfaceVariant,
+      borderRadius: 8,
+      justifyContent: 'center',
+      alignItems: 'center',
+      position: 'relative',
+    },
+    routePoint: {
+      width: 12,
+      height: 12,
+      borderRadius: 6,
+      backgroundColor: colors.primary,
+    },
+    routePath: {
+      position: 'absolute',
+      width: 2,
+      height: 30,
+      backgroundColor: colors.primary,
+      top: 15,
+      borderRadius: 1,
+    },
+    routeInfo: {
+      alignItems: 'flex-end',
+    },
+    routeDistance: {
+      fontSize: 18,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+      marginBottom: 4,
+    },
+    routeCalories: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    joinButton: {
+      flexDirection: 'row',
+      backgroundColor: colors.primary,
+      marginHorizontal: 20,
+      marginBottom: 32,
+      paddingVertical: 18,
+      paddingHorizontal: 24,
+      borderRadius: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.4,
+      shadowRadius: 12,
+      elevation: 8,
+    },
+    joinButtonText: {
+      fontSize: 17,
+      fontFamily: 'Inter-Bold',
+      color: '#FFFFFF',
+      letterSpacing: 0.5,
+    }
+  });
+  
+  const createStyles = (colors: Colors) => styles({colors});

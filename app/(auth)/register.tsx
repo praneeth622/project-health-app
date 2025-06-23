@@ -174,7 +174,14 @@ export default function RegisterScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          accessibilityHint="Return to previous screen"
+          activeOpacity={0.7}
+        >
           <ArrowLeft size={24} color={colors.text} />
         </TouchableOpacity>
 
@@ -193,6 +200,8 @@ export default function RegisterScreen() {
               onChangeText={setName}
               autoCapitalize="words"
               placeholderTextColor={colors.textTertiary}
+              accessibilityLabel="Full name"
+              accessibilityHint="Enter your full name"
             />
           </View>
 
@@ -206,6 +215,8 @@ export default function RegisterScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
               placeholderTextColor={colors.textTertiary}
+              accessibilityLabel="Email address"
+              accessibilityHint="Enter your email address"
             />
           </View>
 
@@ -218,6 +229,8 @@ export default function RegisterScreen() {
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
               placeholderTextColor={colors.textTertiary}
+              accessibilityLabel="Password"
+              accessibilityHint="Enter your password"
             />
             <TouchableOpacity
               style={styles.eyeIcon}
@@ -240,6 +253,8 @@ export default function RegisterScreen() {
               onChangeText={setConfirmPassword}
               secureTextEntry={!showConfirmPassword}
               placeholderTextColor={colors.textTertiary}
+              accessibilityLabel="Confirm password"
+              accessibilityHint="Re-enter your password to confirm"
             />
             <TouchableOpacity
               style={styles.eyeIcon}
@@ -257,6 +272,11 @@ export default function RegisterScreen() {
             style={[styles.registerButton, loading && styles.registerButtonDisabled]}
             onPress={handleRegister}
             disabled={loading}
+            accessibilityRole="button"
+            accessibilityLabel={loading ? "Creating Account..." : "Create Account"}
+            accessibilityHint="Register for a new account"
+            accessibilityState={{ disabled: loading }}
+            activeOpacity={loading ? 1 : 0.8}
           >
             <Text style={styles.registerButtonText}>
               {loading ? 'Creating Account...' : 'Create Account'}
@@ -273,12 +293,20 @@ export default function RegisterScreen() {
             <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialRegister('Google')}
+              accessibilityRole="button"
+              accessibilityLabel="Sign up with Google"
+              accessibilityHint="Use your Google account to create an account"
+              activeOpacity={0.8}
             >
               <Text style={styles.socialButtonText}>Google</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.socialButton}
               onPress={() => handleSocialRegister('Apple')}
+              accessibilityRole="button"
+              accessibilityLabel="Sign up with Apple"
+              accessibilityHint="Use your Apple ID to create an account"
+              activeOpacity={0.8}
             >
               <Text style={styles.socialButtonText}>Apple</Text>
             </TouchableOpacity>
