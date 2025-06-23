@@ -1,0 +1,177 @@
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
+import { ArrowLeft, Target, Heart, Zap, Scale } from 'lucide-react-native';
+
+const goals = [
+  { id: 'weight-loss', title: 'Weight Loss', icon: Scale, color: '#EF4444' },
+  { id: 'muscle-gain', title: 'Muscle Gain', icon: Zap, color: '#F59E0B' },
+  { id: 'endurance', title: 'Endurance', icon: Heart, color: '#10B981' },
+  { id: 'general-fitness', title: 'General Fitness', icon: Target, color: '#8B5CF6' },
+];
+
+export default function GoalsSelection() {
+  const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
+
+  const toggleGoal = (goalId: string) => {
+    setSelectedGoals(prev => 
+      prev.includes(goalId) 
+        ? prev.filter(id => id !== goalId)
+        : [...prev, goalId]
+    );
+  };
+
+  const handleComplete = () => {
+    router.replace('/(tabs)');
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <ArrowLeft size={24} color="#374151" />
+        </TouchableOpacity>
+
+        <View style={styles.header}>
+          <Text style={styles.logo}>HealYou</Text>
+          <Text style={styles.title}>What are your fitness goals?</Text>
+          <Text style={styles.subtitle}>Select all that apply</Text>
+        </View>
+
+        <View style={styles.goalsContainer}>
+          {goals.map((goal) => {
+            const IconComponent = goal.icon;
+            const isSelected = selectedGoals.includes(goal.id);
+            
+            return (
+              <TouchableOpacity
+                key={goal.id}
+                style={[
+                  styles.goalOption,
+                  isSelected && styles.goalOptionSelected,
+                ]}
+                onPress={() => toggleGoal(goal.id)}
+              >
+                <View style={[styles.goalIcon, { backgroundColor: goal.color }]}>
+                  <IconComponent size={24} color="#FFFFFF" />
+                </View>
+                <Text style={[
+                  styles.goalText,
+                  isSelected && styles.goalTextSelected,
+                ]}>
+                  {goal.title}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <TouchableOpacity
+          style={[
+            styles.completeButton,
+            selectedGoals.length === 0 && styles.completeButtonDisabled,
+          ]}
+          onPress={handleComplete}
+          disabled={selectedGoals.length === 0}
+        >
+          <Text style={styles.completeButtonText}>Complete Setup</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 40,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F9FAFB',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  logo: {
+    fontSize: 24,
+    fontFamily: 'Poppins-Bold',
+    color: '#2DD4BF',
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 28,
+    fontFamily: 'Poppins-Bold',
+    color: '#111827',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: '#6B7280',
+    textAlign: 'center',
+  },
+  goalsContainer: {
+    flex: 1,
+    gap: 16,
+    marginBottom: 40,
+  },
+  goalOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  goalOptionSelected: {
+    backgroundColor: '#F0FDFA',
+    borderColor: '#2DD4BF',
+  },
+  goalIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  goalText: {
+    fontSize: 18,
+    fontFamily: 'Poppins-SemiBold',
+    color: '#111827',
+  },
+  goalTextSelected: {
+    color: '#2DD4BF',
+  },
+  completeButton: {
+    backgroundColor: '#2DD4BF',
+    borderRadius: 12,
+    height: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  completeButtonDisabled: {
+    backgroundColor: '#D1D5DB',
+  },
+  completeButtonText: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFFFFF',
+  },
+});
