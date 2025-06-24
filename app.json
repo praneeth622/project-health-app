@@ -8,6 +8,7 @@
     "scheme": "healyou",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "sdkVersion": "53.0.0",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.healyou.app"
@@ -27,7 +28,8 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
