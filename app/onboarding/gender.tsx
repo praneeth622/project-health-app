@@ -4,13 +4,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ArrowRight, ArrowLeft } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function GenderSelection() {
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const { colors } = useTheme();
+  const { updateOnboardingStep } = useAuth();
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (selectedGender) {
+      // Save the gender selection
+      await updateOnboardingStep(1, { gender: selectedGender });
       router.push('/onboarding/age');
     }
   };

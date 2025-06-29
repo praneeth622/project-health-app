@@ -4,15 +4,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ArrowRight, ArrowLeft } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from 'react-native-reanimated';
 
 export default function WeightSelection() {
   const [weight, setWeight] = useState(58);
   const { colors } = useTheme();
+  const { updateOnboardingStep } = useAuth();
   const sliderPosition = useSharedValue(((58 - 40) / 120) * 100); // Initial position for weight 58kg
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    // Save the weight selection
+    await updateOnboardingStep(4, { weight_kg: weight });
     router.push('/onboarding/goals');
   };
 
