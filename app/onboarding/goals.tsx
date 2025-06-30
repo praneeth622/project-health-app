@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ArrowLeft, Target, Heart, Zap, Scale } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 const goals = [
   { id: 'weight-loss', title: 'Weight Loss', icon: Scale, color: '#EF4444' },
@@ -14,7 +15,9 @@ const goals = [
 
 export default function GoalsSelection() {
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
   const { colors } = useTheme();
+  const { completeOnboarding, profile } = useAuth();
 
   const toggleGoal = (goalId: string) => {
     setSelectedGoals(prev => 
@@ -24,8 +27,45 @@ export default function GoalsSelection() {
     );
   };
 
-  const handleComplete = () => {
-    router.replace('/(tabs)');
+  const handleComplete = async () => {
+    if (selectedGoals.length === 0) {
+      Alert.alert('Selection Required', 'Please select at least one fitness goal to continue.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Get goal names instead of IDs
+      const goalNames = selectedGoals.map(goalId => 
+        goals.find(goal => goal.id === goalId)?.title || goalId
+      );
+
+      // Prepare onboarding data from the user's journey
+      const onboardingData = {
+        gender: profile?.gender,
+        age: profile?.age,
+        height_cm: profile?.height_cm,
+        weight_kg: profile?.weight_kg,
+        fitness_goals: goalNames,
+        fitness_level: 'beginner' as const, // Default level, could be collected in another step
+      };
+
+      const { error } = await completeOnboarding(onboardingData);
+
+      if (error) {
+        Alert.alert('Error', error.message);
+      } else {
+        Alert.alert(
+          'Welcome to HealYou!', 
+          'Your profile has been set up successfully. Let\'s start your fitness journey!',
+          [{ text: 'Continue', onPress: () => router.replace('/(tabs)') }]
+        );
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to complete setup. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const styles = StyleSheet.create({
@@ -197,14 +237,16 @@ export default function GoalsSelection() {
             selectedGoals.length === 0 && styles.completeButtonDisabled,
           ]}
           onPress={handleComplete}
-          disabled={selectedGoals.length === 0}
+          disabled={selectedGoals.length === 0 || loading}
           accessibilityRole="button"
           accessibilityLabel="Complete onboarding setup"
           accessibilityHint="Finish setup and enter the main app"
-          accessibilityState={{ disabled: selectedGoals.length === 0 }}
-          activeOpacity={selectedGoals.length === 0 ? 1 : 0.8}
+          accessibilityState={{ disabled: selectedGoals.length === 0 || loading }}
+          activeOpacity={selectedGoals.length === 0 || loading ? 1 : 0.8}
         >
-          <Text style={styles.completeButtonText}>Complete Setup</Text>
+          <Text style={styles.completeButtonText}>
+            {loading ? 'Setting up your profile...' : 'Complete Setup'}
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

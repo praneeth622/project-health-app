@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -11,6 +12,7 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { colors } = useTheme();
+  const { signIn } = useAuth();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -19,15 +21,19 @@ export default function LoginScreen() {
     }
 
     setLoading(true);
-    // Simulate login
-    setTimeout(() => {
+    try {
+      const { user, session, error } = await signIn(email, password);
+      
+      if (error) {
+        Alert.alert('Login Failed', error.message);
+      } else if (user && session) {
+        router.replace('/(tabs)');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'An unexpected error occurred');
+    } finally {
       setLoading(false);
-      router.replace('/(tabs)');
-    }, 1500);
-  };
-
-  const handleSocialLogin = (provider: string) => {
-    Alert.alert('Social Login', `${provider} login will be implemented`);
+    }
   };
 
   const styles = StyleSheet.create({
@@ -112,42 +118,6 @@ export default function LoginScreen() {
       fontFamily: 'Inter-SemiBold',
       color: colors.background,
     },
-    divider: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 24,
-    },
-    dividerLine: {
-      flex: 1,
-      height: 1,
-      backgroundColor: colors.border,
-    },
-    dividerText: {
-      fontSize: 14,
-      fontFamily: 'Inter-Regular',
-      color: colors.textTertiary,
-      marginHorizontal: 16,
-    },
-    socialButtons: {
-      flexDirection: 'row',
-      gap: 12,
-      marginBottom: 32,
-    },
-    socialButton: {
-      flex: 1,
-      backgroundColor: colors.surfaceVariant,
-      borderRadius: 12,
-      height: 56,
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    socialButtonText: {
-      fontSize: 16,
-      fontFamily: 'Inter-SemiBold',
-      color: colors.text,
-    },
     footer: {
       alignItems: 'center',
       paddingBottom: 24,
@@ -217,6 +187,7 @@ export default function LoginScreen() {
 
           <TouchableOpacity 
             style={styles.forgotPassword}
+            onPress={() => router.push('/forgot-password' as any)}
             accessibilityRole="button"
             accessibilityLabel="Forgot Password"
             accessibilityHint="Reset your password"
@@ -239,35 +210,6 @@ export default function LoginScreen() {
               {loading ? 'Signing In...' : 'Sign In'}
             </Text>
           </TouchableOpacity>
-
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or continue with</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          <View style={styles.socialButtons}>
-            <TouchableOpacity
-              style={styles.socialButton}
-              onPress={() => handleSocialLogin('Google')}
-              accessibilityRole="button"
-              accessibilityLabel="Sign in with Google"
-              accessibilityHint="Use your Google account to sign in"
-              activeOpacity={0.8}
-            >
-              <Text style={styles.socialButtonText}>Google</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.socialButton}
-              onPress={() => handleSocialLogin('Apple')}
-              accessibilityRole="button"
-              accessibilityLabel="Sign in with Apple"
-              accessibilityHint="Use your Apple ID to sign in"
-              activeOpacity={0.8}
-            >
-              <Text style={styles.socialButtonText}>Apple</Text>
-            </TouchableOpacity>
-          </View>
         </View>
 
         <View style={styles.footer}>

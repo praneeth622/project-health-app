@@ -4,15 +4,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ArrowRight, ArrowLeft } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from 'react-native-reanimated';
 
 export default function HeightSelection() {
   const [heightInches, setHeightInches] = useState(63); // 5'3" = 63 inches
   const { colors } = useTheme();
+  const { updateOnboardingStep } = useAuth();
   const sliderPosition = useSharedValue(45); // Initial position around middle
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    // Convert inches to cm and save
+    const heightCm = Math.round(heightInches * 2.54);
+    await updateOnboardingStep(3, { height_cm: heightCm });
     router.push('/onboarding/weight');
   };
 

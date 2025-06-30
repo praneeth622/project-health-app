@@ -4,15 +4,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { ArrowRight, ArrowLeft } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from 'react-native-reanimated';
 
 export default function AgeSelection() {
   const [age, setAge] = useState(20);
   const { colors } = useTheme();
+  const { updateOnboardingStep } = useAuth();
   const sliderPosition = useSharedValue(((20 - 15) / 70) * 100); // Initial position for age 20
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    // Save the age selection
+    await updateOnboardingStep(2, { age });
     router.push('/onboarding/height');
   };
 

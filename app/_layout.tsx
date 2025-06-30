@@ -7,6 +7,7 @@ import { Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700
 import * as SplashScreen from 'expo-splash-screen';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -52,9 +53,11 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <NotificationProvider>
-        <RootStack />
-      </NotificationProvider>
+      <AuthProvider>
+        <NotificationProvider>
+          <RootStack />
+        </NotificationProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
