@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions, RefreshControl, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Plus, Search, Filter, Heart, MessageCircle, Share, Users, Bell, Activity, Calendar, Target, TrendingUp, Award, Zap, Clock, MapPin } from 'lucide-react-native';
 import { router } from 'expo-router';
@@ -9,74 +9,231 @@ import NotificationBadge from '@/components/NotificationBadge';
 import StatsCard from '@/components/StatsCard';
 import ActivityChart from '@/components/ActivityChart';
 import WorkoutCard from '@/components/WorkoutCard';
+import { HomeService, User, HealthLog, Challenge } from '@/services/homeService';
 
 const { width } = Dimensions.get('window');
 
-const posts = [
-  // Removed social posts - will be replaced with enhanced content
-];
-
-const todayGoals = [
-  { id: 1, title: 'Complete 10,000 steps', progress: 85, current: 8547, target: 10000, icon: '👟', color: '#4ECDC4' },
-  { id: 2, title: 'Drink 8 glasses of water', progress: 62, current: 5, target: 8, icon: '💧', color: '#3B82F6' },
-  { id: 3, title: 'Exercise for 60 minutes', progress: 78, current: 47, target: 60, icon: '💪', color: '#F59E0B' },
-];
-
-const achievements = [
-  { id: 1, title: '7-Day Streak', description: 'Workout every day', icon: '🔥', earned: true },
-  { id: 2, title: 'Early Bird', description: 'Morning workouts', icon: '🌅', earned: true },
-  { id: 3, title: 'Goal Crusher', description: 'Exceed daily target', icon: '🎯', earned: false },
-  { id: 4, title: 'Social Butterfly', description: 'Join 5 group workouts', icon: '🦋', earned: false },
-];
-
-const quickActions = [
-  { id: 1, title: 'Start Workout', icon: Zap, color: '#FF6B6B', route: '/(tabs)/workouts' },
-  { id: 2, title: 'Track Food', icon: Target, color: '#4ECDC4', route: '/(tabs)/nutrition' },
-  { id: 3, title: 'Log Weight', icon: TrendingUp, color: '#8B5CF6', route: '/(tabs)/profile' },
-  { id: 4, title: 'Set Reminder', icon: Clock, color: '#F59E0B', route: '/(tabs)/settings' },
-];
-
-const upcomingEvents = [
-  { id: 1, title: 'Morning Yoga', time: '07:00 AM', type: 'Group Class', participants: 12 },
-  { id: 2, title: 'HIIT Training', time: '06:00 PM', type: 'Personal', participants: 1 },
-  { id: 3, title: 'Weekend Hike', time: 'Sat 09:00 AM', type: 'Community', participants: 24 },
-];
-
-const activityData = [
-  { day: 'Mon', value: 65, isHighlighted: false },
-  { day: 'Tue', value: 78, isHighlighted: false },
-  { day: 'Wed', value: 92, isHighlighted: true },
-  { day: 'Thu', value: 88, isHighlighted: false },
-  { day: 'Fri', value: 76, isHighlighted: false },
-  { day: 'Sat', value: 85, isHighlighted: false },
-  { day: 'Sun', value: 91, isHighlighted: false },
-];
-
-const featuredWorkouts = [
-  {
-    title: 'Morning Cardio',
-    week: 'Week 3',
-    workoutNumber: 'Workout 1',
-    nextExercise: 'High Intensity Interval',
-    backgroundColor: '#FF6B6B',
-  },
-  {
-    title: 'Strength Training',
-    week: 'Week 2',
-    workoutNumber: 'Workout 4',
-    nextExercise: 'Upper Body Focus',
-    backgroundColor: '#4ECDC4',
-  },
-];
+// Default goal targets
+const DEFAULT_GOALS = {
+  steps: 10000,
+  water: 8,
+  exercise: 60
+};
 
 export default function HomeScreen() {
   const { colors } = useTheme();
-  const [selectedQuickAction, setSelectedQuickAction] = useState(null);
+  const { unreadCount } = useNotifications();
   
+  // State management
+  const [user, setUser] = useState<User | null>(null);
+  const [healthLogs, setHealthLogs] = useState<HealthLog[]>([]);
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [activityData, setActivityData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [selectedQuickAction, setSelectedQuickAction] = useState(null);
+
+  // Mock data for features not yet integrated
+  const quickActions = [
+    { id: 1, title: 'Start Workout', icon: Zap, color: '#FF6B6B', route: '/(tabs)/workouts' },
+    { id: 2, title: 'Track Food', icon: Target, color: '#4ECDC4', route: '/(tabs)/nutrition' },
+    { id: 3, title: 'Log Weight', icon: TrendingUp, color: '#8B5CF6', route: '/(tabs)/profile' },
+    { id: 4, title: 'Set Reminder', icon: Clock, color: '#F59E0B', route: '/(tabs)/settings' },
+  ];
+
+  const upcomingEvents = [
+    { id: 1, title: 'Morning Yoga', time: '07:00 AM', type: 'Group Class', participants: 12 },
+    { id: 2, title: 'HIIT Training', time: '06:00 PM', type: 'Personal', participants: 1 },
+    { id: 3, title: 'Weekend Hike', time: 'Sat 09:00 AM', type: 'Community', participants: 24 },
+  ];
+
+  const featuredWorkouts = [
+    {
+      title: 'Morning Cardio',
+      week: 'Week 3',
+      workoutNumber: 'Workout 1',
+      nextExercise: 'High Intensity Interval',
+      backgroundColor: '#FF6B6B',
+    },
+    {
+      title: 'Strength Training',
+      week: 'Week 2',
+      workoutNumber: 'Workout 4',
+      nextExercise: 'Upper Body Focus',
+      backgroundColor: '#4ECDC4',
+    },
+  ];
+
+  useEffect(() => {
+    loadHomeData();
+  }, []);
+
+  const loadHomeData = async () => {
+    try {
+      setLoading(true);
+      
+      // Load user profile first
+      const userData = await HomeService.getCurrentUser();
+      setUser(userData);
+
+      // Load user's health data
+      const [healthLogsData, challengesData, weeklyStats] = await Promise.all([
+        HomeService.getTodayHealthLogs(userData.id),
+        HomeService.getUserChallenges(userData.id),
+        HomeService.getWeeklyStats(userData.id)
+      ]);
+
+      setHealthLogs(healthLogsData);
+      setChallenges(challengesData);
+      
+      // Process weekly stats for activity chart
+      if (weeklyStats) {
+        setActivityData(processWeeklyStats(weeklyStats));
+      } else {
+        // Fallback to mock data
+        setActivityData([
+          { day: 'Mon', value: 65, isHighlighted: false },
+          { day: 'Tue', value: 78, isHighlighted: false },
+          { day: 'Wed', value: 92, isHighlighted: true },
+          { day: 'Thu', value: 88, isHighlighted: false },
+          { day: 'Fri', value: 76, isHighlighted: false },
+          { day: 'Sat', value: 85, isHighlighted: false },
+          { day: 'Sun', value: 91, isHighlighted: false },
+        ]);
+      }
+
+    } catch (error) {
+      console.error('Failed to load home data:', error);
+      Alert.alert('Error', 'Failed to load data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadHomeData();
+    setRefreshing(false);
+  };
+
+  const processWeeklyStats = (stats: any) => {
+    // Process API stats into chart format
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return days.map((day, index) => ({
+      day,
+      value: stats.daily_averages?.[index] || 0,
+      isHighlighted: index === new Date().getDay() - 1
+    }));
+  };
+
+  const calculateTodayGoals = () => {
+    if (!healthLogs.length) {
+      // Return mock data if no health logs
+      return [
+        { id: 1, title: 'Complete 10,000 steps', progress: 0, current: 0, target: 10000, icon: '👟', color: '#4ECDC4' },
+        { id: 2, title: 'Drink 8 glasses of water', progress: 0, current: 0, target: 8, icon: '💧', color: '#3B82F6' },
+        { id: 3, title: 'Exercise for 60 minutes', progress: 0, current: 0, target: 60, icon: '💪', color: '#F59E0B' },
+      ];
+    }
+
+    const stepsLog = healthLogs.find(log => log.type === 'steps');
+    const waterLog = healthLogs.find(log => log.type === 'water');
+    const exerciseLog = healthLogs.find(log => log.type === 'exercise');
+
+    const stepsProgress = stepsLog ? (stepsLog.value / DEFAULT_GOALS.steps) * 100 : 0;
+    const waterProgress = waterLog ? (waterLog.value / DEFAULT_GOALS.water) * 100 : 0;
+    const exerciseProgress = exerciseLog ? (exerciseLog.value / DEFAULT_GOALS.exercise) * 100 : 0;
+
+    return [
+      {
+        id: 1,
+        title: 'Complete 10,000 steps',
+        progress: Math.min(stepsProgress, 100),
+        current: stepsLog?.value || 0,
+        target: DEFAULT_GOALS.steps,
+        icon: '👟',
+        color: '#4ECDC4'
+      },
+      {
+        id: 2,
+        title: 'Drink 8 glasses of water',
+        progress: Math.min(waterProgress, 100),
+        current: waterLog?.value || 0,
+        target: DEFAULT_GOALS.water,
+        icon: '💧',
+        color: '#3B82F6'
+      },
+      {
+        id: 3,
+        title: 'Exercise for 60 minutes',
+        progress: Math.min(exerciseProgress, 100),
+        current: exerciseLog?.value || 0,
+        target: DEFAULT_GOALS.exercise,
+        icon: '💪',
+        color: '#F59E0B'
+      }
+    ];
+  };
+
+  const processAchievements = () => {
+    if (!challenges.length) {
+      // Return mock achievements
+      return [
+        { id: 1, title: '7-Day Streak', description: 'Workout every day', icon: '🔥', earned: false },
+        { id: 2, title: 'Early Bird', description: 'Morning workouts', icon: '🌅', earned: false },
+        { id: 3, title: 'Goal Crusher', description: 'Exceed daily target', icon: '🎯', earned: false },
+        { id: 4, title: 'Social Butterfly', description: 'Join 5 group workouts', icon: '🦋', earned: false },
+      ];
+    }
+
+    return challenges.slice(0, 4).map(challenge => ({
+      id: challenge.id,
+      title: challenge.title,
+      description: challenge.description,
+      icon: getChallengeeIcon(challenge.type),
+      earned: false // You'll need to implement progress checking
+    }));
+  };
+
+  const getChallengeeIcon = (type: string) => {
+    const icons = {
+      'individual': '🎯',
+      'group': '👥',
+      'workout': '💪',
+      'nutrition': '🥗'
+    };
+    return icons[type] || '⭐';
+  };
+
+  const todayGoals = calculateTodayGoals();
+  const achievements = processAchievements();
+
+  // Calculate overall progress
+  const overallProgress = todayGoals.reduce((sum, goal) => sum + goal.progress, 0) / todayGoals.length;
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={styles.loadingContainer}>
+          <Text style={[styles.loadingText, { color: colors.text }]}>Loading your health data...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: colors.background,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    loadingText: {
+      fontSize: 16,
+      fontFamily: 'Inter-Medium',
     },
     header: {
       flexDirection: 'row',
@@ -148,44 +305,6 @@ export default function HomeScreen() {
       paddingHorizontal: 20,
       gap: 12,
     },
-    statsCard: {
-      width: 160,
-    },
-    chartSection: {
-      marginBottom: 24,
-    },
-    workoutSection: {
-      marginBottom: 24,
-    },
-    quickNavContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      paddingHorizontal: 20,
-      paddingVertical: 20,
-      marginBottom: 20,
-    },
-    quickNavItem: {
-      alignItems: 'center',
-      flex: 1,
-    },
-    quickNavIcon: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginBottom: 8,
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
-    },
-    quickNavText: {
-      fontSize: 12,
-      fontFamily: 'Inter-Medium',
-      color: colors.text,
-    },
     goalCard: {
       backgroundColor: colors.cardBackground,
       borderRadius: 16,
@@ -239,6 +358,35 @@ export default function HomeScreen() {
     goalProgressFill: {
       height: '100%',
       borderRadius: 3,
+    },
+    motivationCard: {
+      backgroundColor: colors.primary,
+      marginHorizontal: 20,
+      borderRadius: 16,
+      padding: 20,
+      marginBottom: 24,
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 6,
+    },
+    motivationText: {
+      fontSize: 18,
+      fontFamily: 'Inter-Bold',
+      color: '#FFFFFF',
+      textAlign: 'center',
+      marginBottom: 8,
+    },
+    motivationSubtext: {
+      fontSize: 14,
+      fontFamily: 'Inter-Regular',
+      color: '#FFFFFF',
+      opacity: 0.9,
+      textAlign: 'center',
+    },
+    chartSection: {
+      marginBottom: 24,
     },
     achievementsGrid: {
       flexDirection: 'row',
@@ -314,6 +462,9 @@ export default function HomeScreen() {
       color: colors.text,
       textAlign: 'center',
     },
+    workoutSection: {
+      marginBottom: 24,
+    },
     eventsContainer: {
       paddingHorizontal: 20,
       marginBottom: 24,
@@ -368,74 +519,54 @@ export default function HomeScreen() {
       fontFamily: 'Inter-Medium',
       color: colors.primary,
     },
-    motivationCard: {
-      backgroundColor: `linear-gradient(135deg, ${colors.primary}, ${colors.accent})`,
-      marginHorizontal: 20,
-      borderRadius: 16,
-      padding: 20,
-      marginBottom: 24,
-      shadowColor: colors.primary,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
-      shadowRadius: 8,
-      elevation: 6,
-    },
-    motivationText: {
-      fontSize: 18,
-      fontFamily: 'Inter-Bold',
-      color: '#FFFFFF',
-      textAlign: 'center',
-      marginBottom: 8,
-    },
-    motivationSubtext: {
-      fontSize: 14,
-      fontFamily: 'Inter-Regular',
-      color: '#FFFFFF',
-      opacity: 0.9,
-      textAlign: 'center',
-    },
-    searchContainer: {
+    quickNavContainer: {
       flexDirection: 'row',
+      justifyContent: 'space-around',
       paddingHorizontal: 20,
+      paddingVertical: 20,
       marginBottom: 20,
-      gap: 12,
     },
-    searchBar: {
-      flex: 1,
-      flexDirection: 'row',
+    quickNavItem: {
       alignItems: 'center',
-      backgroundColor: colors.inputBackground,
-      borderRadius: 12,
-      paddingHorizontal: 16,
-      height: 48,
-      gap: 12,
+      flex: 1,
     },
-    searchPlaceholder: {
-      fontSize: 14,
-      fontFamily: 'Inter-Regular',
-      color: colors.textTertiary,
-    },
-    filterButton: {
+    quickNavIcon: {
       width: 48,
       height: 48,
-      borderRadius: 12,
-      backgroundColor: colors.inputBackground,
+      borderRadius: 24,
       justifyContent: 'center',
       alignItems: 'center',
+      marginBottom: 8,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    quickNavText: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.text,
     },
   });
-  
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.userInfo}>
           <Image
-            source={{ uri: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=2' }}
+            source={{ 
+              uri: user?.profile_image || 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=2' 
+            }}
             style={styles.userAvatar}
           />
           <View>
-            <Text style={styles.greeting}>Hello Linh!</Text>
-            <Text style={styles.date}>Thursday, 08 July</Text>
+            <Text style={styles.greeting}>Hello {user?.name || 'User'}!</Text>
+            <Text style={styles.date}>{new Date().toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              month: 'long', 
+              day: 'numeric' 
+            })}</Text>
           </View>
         </View>
         <View style={styles.headerActions}>
@@ -450,11 +581,17 @@ export default function HomeScreen() {
             onPress={() => router.push('/(tabs)/notifications')}
           >
             <Bell size={24} color={colors.textSecondary} />
+            {unreadCount > 0 && <NotificationBadge count={unreadCount} />}
           </TouchableOpacity>
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         {/* Daily Goals Progress */}
         <View style={styles.statsSection}>
           <View style={styles.sectionHeader}>
@@ -479,7 +616,7 @@ export default function HomeScreen() {
                   <Text style={styles.goalProgressText}>
                     {goal.current} / {goal.target}
                   </Text>
-                  <Text style={styles.goalProgressPercentage}>{goal.progress}%</Text>
+                  <Text style={styles.goalProgressPercentage}>{Math.round(goal.progress)}%</Text>
                 </View>
                 <View style={styles.goalProgressBar}>
                   <View 
@@ -495,10 +632,13 @@ export default function HomeScreen() {
         </View>
 
         {/* Motivation Card */}
-        <View style={[styles.motivationCard, { backgroundColor: colors.primary }]}>
-          <Text style={styles.motivationText}>You're doing great! 🎉</Text>
+        <View style={styles.motivationCard}>
+          <Text style={styles.motivationText}>
+            {overallProgress >= 80 ? "You're crushing it! 🎉" : "Keep going! 💪"}
+          </Text>
           <Text style={styles.motivationSubtext}>
-            You've completed 85% of your daily goals. Keep it up!
+            You've completed {Math.round(overallProgress)}% of your daily goals. 
+            {overallProgress >= 80 ? " Amazing work!" : " You've got this!"}
           </Text>
         </View>
 
@@ -558,7 +698,7 @@ export default function HomeScreen() {
 
         {/* Recent Achievements */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Recent Achievements</Text>
+          <Text style={styles.sectionTitle}>Active Challenges</Text>
           <TouchableOpacity>
             <Award size={20} color={colors.primary} />
           </TouchableOpacity>
