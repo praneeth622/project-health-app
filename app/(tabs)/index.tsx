@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions, RefreshControl, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Plus, Search, Filter, Heart, MessageCircle, Share, Users, Bell, Activity, Calendar, Target, TrendingUp, Award, Zap, Clock, MapPin } from 'lucide-react-native';
+import { Plus, Search, Filter, Heart, MessageCircle, Share, Users, Bell, Activity, Calendar, Target, TrendingUp, Award, Zap, Clock, MapPin, ShoppingBag } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -10,6 +10,7 @@ import NotificationBadge from '@/components/NotificationBadge';
 import StatsCard from '@/components/StatsCard';
 import ActivityChart from '@/components/ActivityChart';
 import WorkoutCard from '@/components/WorkoutCard';
+import MarketplaceSection from '@/components/MarketplaceSection';
 import { HomeService, User, HealthLog, Challenge } from '@/services/homeService';
 
 const { width } = Dimensions.get('window');
@@ -457,7 +458,7 @@ export default function HomeScreen() {
   const quickActions = [
     { id: 1, title: 'Start Workout', icon: Zap, color: '#FF6B6B', route: '/(tabs)/workouts' },
     { id: 2, title: 'Track Food', icon: Target, color: '#4ECDC4', route: '/(tabs)/nutrition' },
-    { id: 3, title: 'Log Weight', icon: TrendingUp, color: '#8B5CF6', route: '/(tabs)/profile' },
+    { id: 3, title: 'Marketplace', icon: ShoppingBag, color: '#10B981', route: '/(tabs)/marketplace' },
     { id: 4, title: 'Set Reminder', icon: Clock, color: '#F59E0B', route: '/(tabs)/settings' },
   ];
 
@@ -805,6 +806,9 @@ export default function HomeScreen() {
             />
           ))}
         </View>
+
+        {/* Marketplace Section */}
+        <MarketplaceSection />
 
         {/* Recent Achievements */}
         <View style={styles.sectionHeader}>

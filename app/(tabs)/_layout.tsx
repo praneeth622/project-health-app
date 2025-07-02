@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Chrome as Home, Users, MessageCircle, User, Search, Activity, Dumbbell, Bell } from 'lucide-react-native';
+import { Chrome as Home, Users, MessageCircle, User, Search, Activity, Dumbbell, Bell, ShoppingBag } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import React from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -96,6 +96,21 @@ export default function TabLayout() {
           tabBarIcon: ({ size, color, focused }) => (
             <TabIcon 
               IconComponent={Activity} 
+              size={focused ? 28 : 24} 
+              color={color} 
+              focused={focused}
+              fill={focused ? `${colors.primary}1A` : 'none'}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="marketplace"
+        options={{
+          title: 'Marketplace',
+          tabBarIcon: ({ size, color, focused }) => (
+            <TabIcon 
+              IconComponent={ShoppingBag} 
               size={focused ? 28 : 24} 
               color={color} 
               focused={focused}
