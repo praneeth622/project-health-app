@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert, Switch } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert, Switch, RefreshControl, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { 
   ArrowLeft, 
@@ -19,13 +19,16 @@ import {
   MoreHorizontal
 } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { GroupService } from '@/services/groupService';
+import { Group, GroupMember as ApiGroupMember, MemberRole } from '@/services/api';
+import NetworkUtils from '@/utils/networkUtils';
 
 interface GroupMember {
   id: string;
   name: string;
   avatar: string;
-  role: 'admin' | 'moderator' | 'member';
+  role: string;
   joinedDate: string;
   lastActive: string;
   postCount: number;
@@ -52,6 +55,7 @@ interface ReportedContent {
     avatar: string;
   };
 }
+
 
 const mockMembers: GroupMember[] = [
   {

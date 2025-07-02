@@ -4,9 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Camera, Globe, Users, Lock, MapPin, Hash } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { router } from 'expo-router';
-
-type GroupVisibility = 'public' | 'private' | 'secret';
-type GroupCategory = 'fitness' | 'yoga' | 'running' | 'cycling' | 'weightlifting' | 'sports' | 'wellness' | 'nutrition';
+import { GroupsAPI, GroupVisibility, GroupCategory, CreateGroupRequest } from '@/services/api';
 
 const categories = [
   { id: 'fitness', name: 'General Fitness', icon: '💪' },
@@ -32,7 +30,9 @@ export default function CreateGroupScreen() {
   const [selectedCategory, setSelectedCategory] = useState<GroupCategory>('fitness');
   const [coverImage, setCoverImage] = useState<string | null>(null);
 
-  const handleCreate = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleCreate = async () => {
     if (!groupData.name.trim()) {
       Alert.alert('Error', 'Please enter a group name');
       return;
@@ -42,9 +42,35 @@ export default function CreateGroupScreen() {
       return;
     }
     
-    Alert.alert('Success', 'Group created successfully!', [
-      { text: 'OK', onPress: () => router.back() }
-    ]);
+    setIsLoading(true);
+    
+    try {
+      const createGroupData: CreateGroupRequest = {
+        name: groupData.name.trim(),
+        description: groupData.description.trim(),
+        category: selectedCategory,
+        visibility,
+        location: groupData.location.trim() || undefined,
+        rules: groupData.rules.trim() || undefined,
+        tags: groupData.tags.trim() ? groupData.tags.split(',').map(tag => tag.trim()).filter(Boolean) : undefined,
+        cover_image: coverImage || undefined,
+      };
+
+      const newGroup = await GroupsAPI.createGroup(createGroupData);
+      
+      Alert.alert('Success', 'Group created successfully!', [
+        { 
+          text: 'OK', 
+          onPress: () => {
+            router.replace({ pathname: '/groups/[id]', params: { id: newGroup.id } });
+          }
+        }
+      ]);
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to create group');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getVisibilityIcon = (vis: GroupVisibility) => {
@@ -53,7 +79,7 @@ export default function CreateGroupScreen() {
         return <Globe size={20} color={visibility === vis ? colors.background : colors.textSecondary} />;
       case 'private':
         return <Users size={20} color={visibility === vis ? colors.background : colors.textSecondary} />;
-      case 'secret':
+      case 'invite_only':
         return <Lock size={20} color={visibility === vis ? colors.background : colors.textSecondary} />;
     }
   };
@@ -64,8 +90,8 @@ export default function CreateGroupScreen() {
         return 'Anyone can see the group, its members, and their posts';
       case 'private':
         return 'Anyone can see the group, but only members can see posts';
-      case 'secret':
-        return 'Only members can see the group and its posts';
+      case 'invite_only':
+        return 'Only invited members can see and join the group';
     }
   };
 
@@ -293,12 +319,14 @@ export default function CreateGroupScreen() {
         <TouchableOpacity 
           style={[
             styles.createButton, 
-            (!groupData.name.trim() || !groupData.description.trim()) && styles.createButtonDisabled
+            (!groupData.name.trim() || !groupData.description.trim() || isLoading) && styles.createButtonDisabled
           ]} 
           onPress={handleCreate}
-          disabled={!groupData.name.trim() || !groupData.description.trim()}
+          disabled={!groupData.name.trim() || !groupData.description.trim() || isLoading}
         >
-          <Text style={styles.createButtonText}>Create</Text>
+          <Text style={styles.createButtonText}>
+            {isLoading ? 'Creating...' : 'Create'}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -405,7 +433,7 @@ export default function CreateGroupScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Privacy</Text>
           <View style={styles.visibilityOptions}>
-            {(['public', 'private', 'secret'] as GroupVisibility[]).map((vis) => (
+            {(['public', 'private', 'invite_only'] as GroupVisibility[]).map((vis) => (
               <TouchableOpacity
                 key={vis}
                 style={[

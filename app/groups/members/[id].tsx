@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Search, Crown, Shield, Users, MoreHorizontal, MessageCircle, Phone, Video } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { router, useLocalSearchParams } from 'expo-router';
+import NetworkUtils from '@/utils/networkUtils';
 
 interface GroupMember {
   id: string;

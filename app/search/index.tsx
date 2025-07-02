@@ -22,7 +22,7 @@ interface SearchResult {
   description?: string;
   image?: string;
   memberCount?: number;
-  visibility?: 'public' | 'private' | 'secret';
+  visibility?: 'public' | 'private' | 'invite_only';
   category?: string;
   location?: string;
   isVerified?: boolean;
@@ -134,7 +134,7 @@ export default function SearchScreen() {
         return <Globe size={12} color={colors.success} />;
       case 'private':
         return <Users size={12} color={colors.warning} />;
-      case 'secret':
+      case 'invite_only':
         return <Lock size={12} color={colors.error} />;
       default:
         return null;
