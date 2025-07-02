@@ -5,6 +5,7 @@ import { Link, router } from 'expo-router';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { HomeService } from '@/services/homeService';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -35,6 +36,8 @@ export default function LoginScreen() {
       setLoading(false);
     }
   };
+
+
 
   const styles = StyleSheet.create({
     container: {

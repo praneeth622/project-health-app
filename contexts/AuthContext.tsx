@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User, AuthChangeEvent } from '@supabase/supabase-js';
 import { AuthService, ProfileService } from '@/lib/auth-service';
 import { UserProfile, AuthError, OnboardingData } from '@/lib/supabase';
+import { HomeService } from '@/services/homeService';
 
 interface AuthContextType {
   // Auth State
@@ -80,11 +81,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Get initial session
     const getInitialSession = async () => {
       try {
+        console.log('🔄 Initializing authentication...');
+        
         const currentSession = await AuthService.getCurrentSession();
         if (currentSession) {
           setSession(currentSession);
           setUser(currentSession.user);
           await loadUserProfile(currentSession.user.id);
+        } else {
+          console.log('❌ No initial session found');
         }
       } catch (error) {
         console.error('Error getting initial session:', error);
@@ -98,6 +103,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Listen for auth changes
     const { data: { subscription } } = AuthService.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
+        console.log('🔄 Auth state changed:', event, !!session);
+        
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -116,9 +123,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const loadUserProfile = async (userId: string) => {
     try {
+      // First try to get profile from Supabase
       const { profile, error } = await ProfileService.getUserProfile(userId);
       if (profile && !error) {
         setProfile(profile);
+        
+        // Also try to sync with backend API to ensure user exists there
+        try {
+          await HomeService.verifyToken();
+          console.log('Backend token verification successful');
+        } catch (backendError) {
+          console.warn('Backend verification failed, user might not exist in backend yet:', backendError);
+        }
       } else if (error) {
         console.error('Error loading profile:', error.message);
       }
@@ -151,7 +167,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signIn = async (email: string, password: string) => {
     setLoading(true);
     try {
-      return await AuthService.signInWithEmail(email, password);
+      console.log('🔐 Attempting sign in for:', email);
+      
+      const result = await AuthService.signInWithEmail(email, password);
+      
+      // If sign in successful, verify backend connection
+      if (result.user && !result.error) {
+        console.log('✅ Supabase sign in successful');
+        
+        // Wait a moment for the session to be fully established
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        try {
+          // Verify backend connection
+          await HomeService.verifyToken();
+          console.log('✅ Backend authentication verified successfully');
+        } catch (backendError) {
+          console.warn('⚠️ Backend verification failed but login successful:', backendError);
+          // Don't fail the login, just log the warning
+        }
+      } else if (result.error) {
+        console.error('❌ Sign in failed:', result.error.message);
+      }
+      
+      return result;
     } finally {
       setLoading(false);
     }

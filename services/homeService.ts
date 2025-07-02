@@ -1,4 +1,5 @@
 import apiClient from './api';
+import { supabase } from '@/lib/supabase';
 
 // Types based on your API schema
 export interface User {
@@ -57,24 +58,63 @@ export interface Post {
 }
 
 export class HomeService {
-  // Get current user profile
+  // Get current authenticated user's ID
+  private static async getCurrentUserId(): Promise<string | null> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user?.id || null;
+    } catch (error) {
+      console.error('Failed to get current user ID:', error);
+      return null;
+    }
+  }
+
+  // Get current user profile using authenticated user ID
   static async getCurrentUser(): Promise<User> {
     try {
-      // For now, we'll use a mock user ID - replace with actual auth user ID
-      const mockUserId = 'user-uuid-1';
-      const response = await apiClient.get(`/users/${mockUserId}`);
+      const userId = await this.getCurrentUserId();
+      if (!userId) {
+        throw new Error('No authenticated user found');
+      }
+
+      console.log('🔍 Fetching user profile for ID:', userId);
+      console.log('🔍 User ID type:', typeof userId);
+      console.log('🔍 User ID length:', userId.length);
+      
+      const response = await apiClient.get(`/users/${userId}`);
+      console.log('✅ User profile response:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Failed to fetch user profile:', error);
+      console.error('❌ Failed to fetch user profile:', error);
       throw error;
     }
   }
 
-  // Get user's health logs for today's goals
-  static async getTodayHealthLogs(userId: string): Promise<HealthLog[]> {
+  // Alternative method to get user profile using the /me endpoint
+  static async getCurrentUserProfile(): Promise<User> {
     try {
+      console.log('🔍 Fetching current user profile via /me endpoint');
+      const response = await apiClient.get('/users/me/profile');
+      console.log('✅ User profile via /me response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Failed to fetch user profile via /me:', error);
+      console.log('🔄 Falling back to ID-based method...');
+      // Fallback to the ID-based method
+      return this.getCurrentUser();
+    }
+  }
+
+  // Get user's health logs for today's goals
+  static async getTodayHealthLogs(userId?: string): Promise<HealthLog[]> {
+    try {
+      const targetUserId = userId || await this.getCurrentUserId();
+      if (!targetUserId) {
+        throw new Error('No user ID available');
+      }
+
       const today = new Date().toISOString().split('T')[0];
-      const response = await apiClient.get(`/health-logs/user/${userId}/range`, {
+      const response = await apiClient.get(`/health-logs/user/${targetUserId}/range`, {
         params: {
           start_date: today,
           end_date: today
@@ -88,13 +128,18 @@ export class HomeService {
   }
 
   // Get user's health statistics for activity chart
-  static async getWeeklyStats(userId: string) {
+  static async getWeeklyStats(userId?: string) {
     try {
+      const targetUserId = userId || await this.getCurrentUserId();
+      if (!targetUserId) {
+        throw new Error('No user ID available');
+      }
+
       const endDate = new Date();
       const startDate = new Date();
       startDate.setDate(endDate.getDate() - 7);
       
-      const response = await apiClient.get(`/health-logs/user/${userId}/stats`, {
+      const response = await apiClient.get(`/health-logs/user/${targetUserId}/stats`, {
         params: {
           start_date: startDate.toISOString().split('T')[0],
           end_date: endDate.toISOString().split('T')[0],
@@ -109,9 +154,14 @@ export class HomeService {
   }
 
   // Get user's active challenges (achievements)
-  static async getUserChallenges(userId: string): Promise<Challenge[]> {
+  static async getUserChallenges(userId?: string): Promise<Challenge[]> {
     try {
-      const response = await apiClient.get(`/challenges/user/${userId}`);
+      const targetUserId = userId || await this.getCurrentUserId();
+      if (!targetUserId) {
+        throw new Error('No user ID available');
+      }
+
+      const response = await apiClient.get(`/challenges/user/${targetUserId}`);
       return response.data.challenges || [];
     } catch (error) {
       console.error('Failed to fetch user challenges:', error);
@@ -133,10 +183,15 @@ export class HomeService {
   }
 
   // Create a health log entry
-  static async logHealthData(userId: string, type: string, value: number, unit: string): Promise<HealthLog> {
+  static async logHealthData(type: string, value: number, unit: string, userId?: string): Promise<HealthLog> {
     try {
+      const targetUserId = userId || await this.getCurrentUserId();
+      if (!targetUserId) {
+        throw new Error('No user ID available');
+      }
+
       const response = await apiClient.post('/health-logs', {
-        user_id: userId,
+        user_id: targetUserId,
         type,
         value,
         unit,
@@ -149,4 +204,19 @@ export class HomeService {
       throw error;
     }
   }
+
+  // Verify authentication token with backend
+  static async verifyToken(): Promise<any> {
+    try {
+      console.log('🔍 Verifying token with backend...');
+      const response = await apiClient.post('/auth/verify-token');
+      console.log('✅ Token verification response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Failed to verify token:', error);
+      throw error;
+    }
+  }
+
+
 }

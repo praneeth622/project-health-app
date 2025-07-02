@@ -5,6 +5,7 @@ import { Plus, Search, Filter, Heart, MessageCircle, Share, Users, Bell, Activit
 import { router } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { useAuth } from '@/contexts/AuthContext';
 import NotificationBadge from '@/components/NotificationBadge';
 import StatsCard from '@/components/StatsCard';
 import ActivityChart from '@/components/ActivityChart';
@@ -24,11 +25,430 @@ export default function HomeScreen() {
   const { colors } = useTheme();
   const { unreadCount } = useNotifications();
   
+  // Define styles at the top of the component
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    loadingText: {
+      fontSize: 16,
+      fontFamily: 'Inter-Medium',
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingTop: 16,
+      paddingBottom: 20,
+    },
+    userInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    userAvatar: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      marginRight: 12,
+    },
+    greeting: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    date: {
+      fontSize: 14,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    headerButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.surfaceVariant,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginLeft: 8,
+    },
+    headerActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      marginBottom: 16,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+    },
+    seeAllText: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      color: colors.primary,
+    },
+    statsSection: {
+      marginTop: 8,
+      marginBottom: 24,
+    },
+    statsScrollView: {
+      marginBottom: 8,
+    },
+    statsContent: {
+      paddingHorizontal: 20,
+      gap: 12,
+    },
+    goalCard: {
+      backgroundColor: colors.cardBackground,
+      borderRadius: 16,
+      padding: 16,
+      marginHorizontal: 20,
+      marginBottom: 12,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    goalHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    goalIcon: {
+      fontSize: 20,
+      marginRight: 12,
+    },
+    goalTitle: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      flex: 1,
+    },
+    goalProgress: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    goalProgressText: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      color: colors.text,
+    },
+    goalProgressPercentage: {
+      fontSize: 14,
+      fontFamily: 'Inter-Bold',
+      color: colors.primary,
+    },
+    goalProgressBar: {
+      height: 6,
+      backgroundColor: colors.surfaceVariant,
+      borderRadius: 3,
+      overflow: 'hidden',
+    },
+    goalProgressFill: {
+      height: '100%',
+      borderRadius: 3,
+    },
+    progressBar: {
+      height: 6,
+      backgroundColor: colors.surfaceVariant,
+      borderRadius: 3,
+      overflow: 'hidden',
+      marginBottom: 8,
+    },
+    progressFill: {
+      height: '100%',
+      borderRadius: 3,
+    },
+    goalMeta: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    goalCurrent: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    goalTarget: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.text,
+    },
+    motivationCard: {
+      backgroundColor: colors.primary,
+      borderRadius: 16,
+      padding: 20,
+      marginHorizontal: 20,
+      marginBottom: 24,
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      elevation: 6,
+    },
+    motivationText: {
+      fontSize: 18,
+      fontFamily: 'Inter-Bold',
+      color: '#FFFFFF',
+      marginBottom: 4,
+    },
+    motivationSubtext: {
+      fontSize: 14,
+      fontFamily: 'Inter-Regular',
+      color: '#FFFFFF',
+      opacity: 0.9,
+    },
+    chartSection: {
+      marginBottom: 24,
+    },
+    quickActionsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      paddingHorizontal: 16,
+      marginBottom: 24,
+      gap: 8,
+    },
+    quickActionCard: {
+      width: (width - 48) / 2,
+      backgroundColor: colors.cardBackground,
+      borderRadius: 16,
+      padding: 16,
+      alignItems: 'center',
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    quickActionIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    quickActionTitle: {
+      fontSize: 14,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    upcomingSection: {
+      paddingHorizontal: 20,
+      marginBottom: 24,
+    },
+    eventCard: {
+      backgroundColor: colors.cardBackground,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 12,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    eventHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    eventTitle: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+    },
+    eventTime: {
+      backgroundColor: colors.primary,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 6,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    eventMeta: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    eventType: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    eventParticipants: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    workoutSection: {
+      paddingHorizontal: 20,
+      marginBottom: 24,
+    },
+    workoutCard: {
+      borderRadius: 16,
+      padding: 20,
+      marginBottom: 16,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 6,
+    },
+    workoutTitle: {
+      fontSize: 18,
+      fontFamily: 'Inter-Bold',
+      color: '#FFFFFF',
+      marginBottom: 4,
+    },
+    workoutWeek: {
+      fontSize: 14,
+      fontFamily: 'Inter-Regular',
+      color: '#FFFFFF',
+      opacity: 0.8,
+      marginBottom: 12,
+    },
+    workoutNext: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: '#FFFFFF',
+      opacity: 0.9,
+    },
+    achievementsSection: {
+      paddingHorizontal: 20,
+      marginBottom: 32,
+    },
+    achievementCard: {
+      backgroundColor: colors.cardBackground,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 12,
+      flexDirection: 'row',
+      alignItems: 'center',
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    achievementIcon: {
+      fontSize: 24,
+      marginRight: 16,
+    },
+    achievementContent: {
+      flex: 1,
+    },
+    achievementTitle: {
+      fontSize: 14,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    achievementDescription: {
+      fontSize: 12,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+    },
+    achievementEarned: {
+      opacity: 1,
+    },
+    achievementNotEarned: {
+      opacity: 0.5,
+    },
+    quickNav: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      backgroundColor: colors.cardBackground,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: -2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    quickNavItem: {
+      alignItems: 'center',
+    },
+    quickNavIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 8,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    quickNavText: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.text,
+    },
+    achievementsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      paddingHorizontal: 20,
+      marginBottom: 20,
+    },
+    eventsContainer: {
+      paddingHorizontal: 20,
+      marginBottom: 20,
+    },
+    eventInfo: {
+      flex: 1,
+      marginLeft: 15,
+    },
+    eventDetails: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 5,
+    },
+    eventTimeText: {
+      fontSize: 12,
+      fontFamily: 'Inter_400Regular',
+      color: '#ffffff',
+    },
+    quickNavContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      paddingHorizontal: 20,
+      paddingVertical: 15,
+      backgroundColor: '#1a1a1a',
+      borderRadius: 15,
+      marginHorizontal: 20,
+      marginBottom: 20,
+    },
+  });
+  
   // State management
   const [user, setUser] = useState<User | null>(null);
   const [healthLogs, setHealthLogs] = useState<HealthLog[]>([]);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [activityData, setActivityData] = useState([]);
+  const [activityData, setActivityData] = useState<{ day: string; value: number; isHighlighted: boolean; }[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedQuickAction, setSelectedQuickAction] = useState(null);
@@ -72,15 +492,15 @@ export default function HomeScreen() {
     try {
       setLoading(true);
       
-      // Load user profile first
-      const userData = await HomeService.getCurrentUser();
+      // Load user profile first using the new authenticated method
+      const userData = await HomeService.getCurrentUserProfile();
       setUser(userData);
 
-      // Load user's health data
+      // Load user's health data (userId is now optional and will use authenticated user)
       const [healthLogsData, challengesData, weeklyStats] = await Promise.all([
-        HomeService.getTodayHealthLogs(userData.id),
-        HomeService.getUserChallenges(userData.id),
-        HomeService.getWeeklyStats(userData.id)
+        HomeService.getTodayHealthLogs(),
+        HomeService.getUserChallenges(),
+        HomeService.getWeeklyStats()
       ]);
 
       setHealthLogs(healthLogsData);
@@ -102,9 +522,28 @@ export default function HomeScreen() {
         ]);
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load home data:', error);
-      Alert.alert('Error', 'Failed to load data. Please try again.');
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to load data. Please try again.';
+      
+      if (error.message?.includes('401') || error.message?.includes('Unauthorized')) {
+        errorMessage = 'Authentication failed. Please sign in again.';
+      } else if (error.message?.includes('No authenticated user')) {
+        errorMessage = 'Please sign in to continue.';
+      }
+      
+      Alert.alert('Error', errorMessage, [
+        {
+          text: 'Retry',
+          onPress: () => loadHomeData()
+        },
+        {
+          text: 'OK',
+          style: 'cancel'
+        }
+      ]);
     } finally {
       setLoading(false);
     }
@@ -201,8 +640,8 @@ export default function HomeScreen() {
       'group': '👥',
       'workout': '💪',
       'nutrition': '🥗'
-    };
-    return icons[type] || '⭐';
+    } as const;
+    return icons[type as keyof typeof icons] || '⭐';
   };
 
   const todayGoals = calculateTodayGoals();
@@ -220,335 +659,6 @@ export default function HomeScreen() {
       </SafeAreaView>
     );
   }
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    loadingText: {
-      fontSize: 16,
-      fontFamily: 'Inter-Medium',
-    },
-    header: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: 20,
-      paddingTop: 16,
-      paddingBottom: 20,
-    },
-    userInfo: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    userAvatar: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      marginRight: 12,
-    },
-    greeting: {
-      fontSize: 16,
-      fontFamily: 'Inter-SemiBold',
-      color: colors.text,
-      marginBottom: 2,
-    },
-    date: {
-      fontSize: 14,
-      fontFamily: 'Inter-Regular',
-      color: colors.textSecondary,
-    },
-    headerButton: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: colors.surfaceVariant,
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginLeft: 8,
-    },
-    headerActions: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    sectionHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: 20,
-      marginBottom: 16,
-    },
-    sectionTitle: {
-      fontSize: 18,
-      fontFamily: 'Inter-Bold',
-      color: colors.text,
-    },
-    seeAllText: {
-      fontSize: 14,
-      fontFamily: 'Inter-Medium',
-      color: colors.primary,
-    },
-    statsSection: {
-      marginTop: 8,
-      marginBottom: 24,
-    },
-    statsScrollView: {
-      marginBottom: 8,
-    },
-    statsContent: {
-      paddingHorizontal: 20,
-      gap: 12,
-    },
-    goalCard: {
-      backgroundColor: colors.cardBackground,
-      borderRadius: 16,
-      padding: 16,
-      marginHorizontal: 4,
-      marginBottom: 12,
-      width: width * 0.85,
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 8,
-      elevation: 4,
-    },
-    goalHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 12,
-    },
-    goalIcon: {
-      fontSize: 24,
-      marginRight: 12,
-    },
-    goalTitle: {
-      fontSize: 16,
-      fontFamily: 'Inter-SemiBold',
-      color: colors.text,
-      flex: 1,
-    },
-    goalProgress: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 8,
-    },
-    goalProgressText: {
-      fontSize: 14,
-      fontFamily: 'Inter-Medium',
-      color: colors.text,
-    },
-    goalProgressPercentage: {
-      fontSize: 14,
-      fontFamily: 'Inter-Bold',
-      color: colors.primary,
-    },
-    goalProgressBar: {
-      height: 6,
-      backgroundColor: colors.surfaceVariant,
-      borderRadius: 3,
-      overflow: 'hidden',
-    },
-    goalProgressFill: {
-      height: '100%',
-      borderRadius: 3,
-    },
-    motivationCard: {
-      backgroundColor: colors.primary,
-      marginHorizontal: 20,
-      borderRadius: 16,
-      padding: 20,
-      marginBottom: 24,
-      shadowColor: colors.primary,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
-      shadowRadius: 8,
-      elevation: 6,
-    },
-    motivationText: {
-      fontSize: 18,
-      fontFamily: 'Inter-Bold',
-      color: '#FFFFFF',
-      textAlign: 'center',
-      marginBottom: 8,
-    },
-    motivationSubtext: {
-      fontSize: 14,
-      fontFamily: 'Inter-Regular',
-      color: '#FFFFFF',
-      opacity: 0.9,
-      textAlign: 'center',
-    },
-    chartSection: {
-      marginBottom: 24,
-    },
-    achievementsGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      paddingHorizontal: 16,
-      gap: 8,
-      marginBottom: 24,
-    },
-    achievementCard: {
-      width: (width - 48) / 2,
-      backgroundColor: colors.cardBackground,
-      borderRadius: 12,
-      padding: 16,
-      alignItems: 'center',
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.05,
-      shadowRadius: 4,
-      elevation: 2,
-    },
-    achievementEarned: {
-      backgroundColor: colors.primary + '15',
-      borderWidth: 1,
-      borderColor: colors.primary + '30',
-    },
-    achievementIcon: {
-      fontSize: 32,
-      marginBottom: 8,
-    },
-    achievementTitle: {
-      fontSize: 14,
-      fontFamily: 'Inter-SemiBold',
-      color: colors.text,
-      textAlign: 'center',
-      marginBottom: 4,
-    },
-    achievementDescription: {
-      fontSize: 11,
-      fontFamily: 'Inter-Regular',
-      color: colors.textSecondary,
-      textAlign: 'center',
-    },
-    quickActionsGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      paddingHorizontal: 16,
-      gap: 8,
-      marginBottom: 24,
-    },
-    quickActionCard: {
-      width: (width - 48) / 2,
-      backgroundColor: colors.cardBackground,
-      borderRadius: 12,
-      padding: 16,
-      alignItems: 'center',
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 8,
-      elevation: 4,
-    },
-    quickActionIcon: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginBottom: 12,
-    },
-    quickActionTitle: {
-      fontSize: 14,
-      fontFamily: 'Inter-SemiBold',
-      color: colors.text,
-      textAlign: 'center',
-    },
-    workoutSection: {
-      marginBottom: 24,
-    },
-    eventsContainer: {
-      paddingHorizontal: 20,
-      marginBottom: 24,
-    },
-    eventCard: {
-      backgroundColor: colors.cardBackground,
-      borderRadius: 12,
-      padding: 16,
-      marginBottom: 12,
-      flexDirection: 'row',
-      alignItems: 'center',
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.05,
-      shadowRadius: 4,
-      elevation: 2,
-    },
-    eventTime: {
-      backgroundColor: colors.primary + '20',
-      borderRadius: 8,
-      padding: 8,
-      marginRight: 12,
-      minWidth: 70,
-      alignItems: 'center',
-    },
-    eventTimeText: {
-      fontSize: 12,
-      fontFamily: 'Inter-Bold',
-      color: colors.primary,
-    },
-    eventInfo: {
-      flex: 1,
-    },
-    eventTitle: {
-      fontSize: 16,
-      fontFamily: 'Inter-SemiBold',
-      color: colors.text,
-      marginBottom: 4,
-    },
-    eventDetails: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    eventType: {
-      fontSize: 12,
-      fontFamily: 'Inter-Regular',
-      color: colors.textSecondary,
-      marginRight: 8,
-    },
-    eventParticipants: {
-      fontSize: 12,
-      fontFamily: 'Inter-Medium',
-      color: colors.primary,
-    },
-    quickNavContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      paddingHorizontal: 20,
-      paddingVertical: 20,
-      marginBottom: 20,
-    },
-    quickNavItem: {
-      alignItems: 'center',
-      flex: 1,
-    },
-    quickNavIcon: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginBottom: 8,
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
-    },
-    quickNavText: {
-      fontSize: 12,
-      fontFamily: 'Inter-Medium',
-      color: colors.text,
-    },
-  });
 
   return (
     <SafeAreaView style={styles.container}>
