@@ -1,26 +1,98 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Animated } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Animated, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import UserHeader from '@/components/UserHeader';
 import CircularProgress from '@/components/CircularProgress';
-import { MapPin, Trophy, Medal, Award, Target, Flame, Footprints, Clock, TrendingUp, Calendar, BarChart3, Activity } from 'lucide-react-native';
+import HealthLogger from '@/components/HealthLogger';
+import { MapPin, Trophy, Medal, Award, Target, Flame, Footprints, Clock, TrendingUp, Calendar, BarChart3, Activity, Plus } from 'lucide-react-native';
 import { Colors, useTheme } from '@/contexts/ThemeContext';
+import HealthLogsService, { HealthLog } from '@/services/healthLogsService';
 
 const { width } = Dimensions.get('window');
 
 export default function ActivityScreen() {
   const { colors } = useTheme();
   const [selectedTab, setSelectedTab] = useState('Today');
+  const [showHealthLogger, setShowHealthLogger] = useState(false);
+  const [healthLogs, setHealthLogs] = useState<HealthLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const styles = createStyles(colors);
   
   const tabs = ['Today', 'Week', 'Month'];
-  
-  const dailyStats = [
-    { label: 'Steps', value: '8,547', target: '10,000', icon: Footprints, color: '#4ECDC4', progress: 85 },
-    { label: 'Calories', value: '524', target: '650', icon: Flame, color: '#FF6B6B', progress: 81 },
-    { label: 'Distance', value: '6.2', target: '8.0', icon: MapPin, color: '#8B5CF6', progress: 78 },
-    { label: 'Active Time', value: '47', target: '60', icon: Clock, color: '#F59E0B', progress: 78 }
-  ];
+
+  // Fetch today's health logs
+  const fetchTodayLogs = useCallback(async () => {
+    try {
+      const logs = await HealthLogsService.getTodayHealthLogs();
+      setHealthLogs(logs);
+    } catch (error) {
+      console.error('Failed to fetch health logs:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTodayLogs();
+  }, [fetchTodayLogs]);
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchTodayLogs();
+    setRefreshing(false);
+  }, [fetchTodayLogs]);
+
+  const handleLogCreated = useCallback((log: HealthLog) => {
+    // Refresh the data
+    fetchTodayLogs();
+  }, [fetchTodayLogs]);
+
+  // Calculate daily stats from health logs
+  const getDailyStatsFromLogs = useCallback(() => {
+    const stepsLog = healthLogs.find(log => log.type === 'steps');
+    const waterLog = healthLogs.find(log => log.type === 'water');
+    const exerciseLog = healthLogs.find(log => log.type === 'exercise');
+    const sleepLog = healthLogs.find(log => log.type === 'sleep');
+
+    return [
+      { 
+        label: 'Steps', 
+        value: stepsLog ? stepsLog.value.toLocaleString() : '0', 
+        target: '10,000', 
+        icon: Footprints, 
+        color: '#4ECDC4', 
+        progress: stepsLog ? Math.min((stepsLog.value / 10000) * 100, 100) : 0 
+      },
+      { 
+        label: 'Water', 
+        value: waterLog ? waterLog.value.toString() : '0', 
+        target: '8', 
+        icon: Target, 
+        color: '#3B82F6', 
+        progress: waterLog ? Math.min((waterLog.value / 8) * 100, 100) : 0 
+      },
+      { 
+        label: 'Exercise', 
+        value: exerciseLog ? exerciseLog.value.toString() : '0', 
+        target: '60', 
+        icon: Flame, 
+        color: '#F59E0B', 
+        progress: exerciseLog ? Math.min((exerciseLog.value / 60) * 100, 100) : 0 
+      },
+      { 
+        label: 'Sleep', 
+        value: sleepLog ? sleepLog.value.toString() : '0', 
+        target: '8', 
+        icon: Clock, 
+        color: '#8B5CF6', 
+        progress: sleepLog ? Math.min((sleepLog.value / 8) * 100, 100) : 0 
+      }
+    ];
+  }, [healthLogs]);
+
+  const dailyStats = getDailyStatsFromLogs();
 
   const recentActivities = [
     { time: '2 hours ago', activity: 'Morning Run', duration: '25 min', calories: '142 kcal', icon: '🏃‍♀️' },
@@ -30,11 +102,27 @@ export default function ActivityScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
+      >
         {/* Enhanced Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Activity</Text>
           <Text style={styles.headerSubtitle}>Track your daily progress</Text>
+          <TouchableOpacity 
+            style={styles.addButton}
+            onPress={() => router.push('/health/create' as any)}
+          >
+            <Plus size={20} color={colors.background} />
+          </TouchableOpacity>
         </View>
 
         {/* Time Period Tabs */}
@@ -89,25 +177,29 @@ export default function ActivityScreen() {
         </View>
 
         {/* Enhanced Challenge Card */}
-        <TouchableOpacity style={styles.challengeCard} activeOpacity={0.9}>
+        <TouchableOpacity 
+          style={styles.challengeCard} 
+          activeOpacity={0.9}
+          onPress={() => router.push('/challenges/index')}
+        >
           <View style={styles.challengeHeader}>
             <View style={styles.challengeIcon}>
               <Text style={styles.challengeEmoji}>🎯</Text>
             </View>
             <View style={styles.challengeTitleContainer}>
-              <Text style={styles.challengeTitle}>Daily Challenge</Text>
-              <Text style={styles.challengeSubtitle}>Steps Goal</Text>
+              <Text style={styles.challengeTitle}>Challenges</Text>
+              <Text style={styles.challengeSubtitle}>Join & Compete</Text>
             </View>
             <View style={styles.challengeBadge}>
-              <Text style={styles.challengeBadgeText}>85%</Text>
+              <Text style={styles.challengeBadgeText}>NEW</Text>
             </View>
           </View>
           <Text style={styles.challengeDescription}>
-            Complete 10,000 steps to unlock today's reward!
+            Discover exciting health challenges and compete with others!
           </Text>
           <View style={styles.challengeProgress}>
-            <Text style={styles.challengeProgressText}>8,547 / 10,000 steps</Text>
-            <Text style={styles.challengeRemainingText}>1,453 steps to go</Text>
+            <Text style={styles.challengeProgressText}>Tap to explore challenges</Text>
+            <Text style={styles.challengeRemainingText}>Find your next goal</Text>
           </View>
           <View style={styles.progressBarContainer}>
             <View style={styles.challengeProgressBar}>
@@ -321,6 +413,13 @@ export default function ActivityScreen() {
           <Text style={styles.joinButtonText}>Start New Activity</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Health Logger Modal */}
+      <HealthLogger
+        visible={showHealthLogger}
+        onClose={() => setShowHealthLogger(false)}
+        onLogCreated={handleLogCreated}
+      />
     </SafeAreaView>
   );
 }
@@ -954,6 +1053,22 @@ export default function ActivityScreen() {
       shadowOpacity: 0.4,
       shadowRadius: 12,
       elevation: 8,
+    },
+    addButton: {
+      position: 'absolute',
+      top: 20,
+      right: 20,
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 4,
     },
     joinButtonText: {
       fontSize: 17,

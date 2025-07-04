@@ -112,38 +112,50 @@ export default function ProfileScreen() {
         {/* Content */}
         {activeTab === 'posts' ? (
           <View style={styles.postsContainer}>
+            {/* View All Posts Button */}
+            <TouchableOpacity 
+              style={[styles.viewAllPostsButton, { backgroundColor: colors.primary }]}
+              onPress={() => router.push('/posts/index')}
+            >
+              <Text style={styles.viewAllPostsText}>View All My Posts</Text>
+            </TouchableOpacity>
+
             {userPosts.map((post) => (
-              <View key={post.id} style={styles.postCard}>
+              <TouchableOpacity 
+                key={post.id} 
+                style={[styles.postCard, { backgroundColor: colors.surface }]}
+                onPress={() => router.push(`/posts/${post.id}` as any)}
+              >
                 <View style={styles.postHeader}>
                   <Image
                     source={{ uri: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=2' }}
                     style={styles.postUserAvatar}
                   />
                   <View style={styles.postUserInfo}>
-                    <Text style={styles.postUserName}>Linh Nguyen</Text>
-                    <Text style={styles.postTime}>{post.time}</Text>
+                    <Text style={[styles.postUserName, { color: colors.text }]}>Linh Nguyen</Text>
+                    <Text style={[styles.postTime, { color: colors.textSecondary }]}>{post.time}</Text>
                   </View>
                 </View>
 
-                <Text style={styles.postContent}>{post.content}</Text>
+                <Text style={[styles.postContent, { color: colors.text }]}>{post.content}</Text>
 
                 <Image source={{ uri: post.image }} style={styles.postImage} />
 
                 <View style={styles.postActions}>
                   <TouchableOpacity style={styles.actionButton}>
-                    <Heart size={20} color="#6B7280" />
-                    <Text style={styles.actionText}>{post.likes}</Text>
+                    <Heart size={20} color={colors.textSecondary} />
+                    <Text style={[styles.actionText, { color: colors.textSecondary }]}>{post.likes}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.actionButton}>
-                    <MessageCircle size={20} color="#6B7280" />
-                    <Text style={styles.actionText}>{post.comments}</Text>
+                    <MessageCircle size={20} color={colors.textSecondary} />
+                    <Text style={[styles.actionText, { color: colors.textSecondary }]}>{post.comments}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.actionButton}>
-                    <Share size={20} color="#6B7280" />
-                    <Text style={styles.actionText}>Share</Text>
+                    <Share size={20} color={colors.textSecondary} />
+                    <Text style={[styles.actionText, { color: colors.textSecondary }]}>Share</Text>
                   </TouchableOpacity>
                 </View>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         ) : (
@@ -464,5 +476,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter-Regular',
     color: '#374151',
+  },
+  viewAllPostsButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  viewAllPostsText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

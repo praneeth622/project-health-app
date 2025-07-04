@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Search, Filter, MapPin, Users, Star } from 'lucide-react-native';
+import { Search, Filter, MapPin, Users, Star, MessageSquare, TrendingUp, Hash } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
+import { router } from 'expo-router';
 
 const categories = ['All', 'Yoga', 'Weight Loss', 'Cardio', 'Strength', 'Running'];
 

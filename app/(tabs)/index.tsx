@@ -12,6 +12,7 @@ import ActivityChart from '@/components/ActivityChart';
 import WorkoutCard from '@/components/WorkoutCard';
 import MarketplaceSection from '@/components/MarketplaceSection';
 import { HomeService, User, HealthLog, Challenge } from '@/services/homeService';
+import { PostService, Post } from '@/services/postService';
 
 const { width } = Dimensions.get('window');
 
@@ -458,8 +459,9 @@ export default function HomeScreen() {
   const quickActions = [
     { id: 1, title: 'Start Workout', icon: Zap, color: '#FF6B6B', route: '/(tabs)/workouts' },
     { id: 2, title: 'Track Food', icon: Target, color: '#4ECDC4', route: '/(tabs)/nutrition' },
-    { id: 3, title: 'Marketplace', icon: ShoppingBag, color: '#10B981', route: '/(tabs)/marketplace' },
-    { id: 4, title: 'Set Reminder', icon: Clock, color: '#F59E0B', route: '/(tabs)/settings' },
+    { id: 3, title: 'Social Posts', icon: MessageCircle, color: '#8B5CF6', route: '/posts' },
+    { id: 4, title: 'Marketplace', icon: ShoppingBag, color: '#10B981', route: '/(tabs)/marketplace' },
+    { id: 5, title: 'Set Reminder', icon: Clock, color: '#F59E0B', route: '/(tabs)/settings' },
   ];
 
   const upcomingEvents = [
@@ -813,7 +815,7 @@ export default function HomeScreen() {
         {/* Recent Achievements */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Active Challenges</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/challenges/index')}>
             <Award size={20} color={colors.primary} />
           </TouchableOpacity>
         </View>
