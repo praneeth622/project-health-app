@@ -172,13 +172,13 @@ export default function ActivityChart({ data, maxValue }: ActivityChartProps) {
                   ]}
                 />
                 {/* Highlight tooltip */}
-                {isHighlighted && (
+                {/* {isHighlighted && (
                   <View style={styles.highlightLabel}>
                     <Text style={styles.highlightText}>Active Day</Text>
                     <Text style={styles.highlightValue}>{item.value}% Goal</Text>
                     <View style={styles.highlightLabelArrow} />
                   </View>
-                )}
+                )} */}
               </View>
               <Text 
                 style={[

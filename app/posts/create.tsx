@@ -27,7 +27,7 @@ import {
 } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { router } from 'expo-router';
-import { PostsService, PostType, PostPrivacy, CreatePostRequest } from '@/services/postsService';
+import { PostsService, PostType, PostPrivacy as PostVisibility, CreatePostRequest } from '@/services/postsService';
 
 interface WorkoutData {
   workout_id: string;
@@ -52,10 +52,10 @@ interface HealthData {
 
 export default function CreatePostScreen() {
   const { colors } = useTheme();
-  const [postData, setPostData] = useState<CreatePostRequest>({
+  const [postData, setPostData] = useState({
     content: '',
-    type: 'text',
-    privacy: 'public',
+    type: 'text' as PostType,
+    privacy: 'public' as PostVisibility, // We'll convert this to visibility when sending the request
   });
   const [workoutData, setWorkoutData] = useState<WorkoutData>({
     workout_id: '',
@@ -99,13 +99,31 @@ export default function CreatePostScreen() {
     try {
       setSubmitting(true);
 
-      const postPayload: CreatePostRequest = {
+      const postPayload = {
         ...postData,
         content: postData.content.trim(),
+        visibility: postData.privacy as PostVisibility || 'public', // Use visibility instead of privacy
         ...(tags.length > 0 && { tags }),
-        ...(location.trim() && { location: location.trim() }),
-        ...(postData.type === 'workout' && { workout_data: workoutData }),
-        ...(postData.type === 'health' && { health_data: healthData }),
+        media_urls: [], // Initialize with empty array
+        metadata: {
+          ...(location.trim() && { location: location.trim() })
+        },
+        ...(postData.type === 'workout' && { 
+          workout_data: workoutData,
+          metadata: {
+            workout_type: workoutData.workout_name,
+            duration_minutes: workoutData.duration_minutes,
+            calories_burned: workoutData.calories_burned
+          }
+        }),
+        ...(postData.type === 'health' && { 
+          health_data: healthData,
+          metadata: {
+            metric_type: healthData.metric_type,
+            value: healthData.value,
+            unit: healthData.unit
+          }
+        }),
       };
 
       await PostsService.createPost(postPayload);
@@ -135,7 +153,7 @@ export default function CreatePostScreen() {
     setTags(prev => prev.filter(tag => tag !== tagToRemove));
   };
 
-  const getPrivacyIcon = (privacy: PostPrivacy) => {
+  const getPrivacyIcon = (privacy: PostVisibility) => {
     switch (privacy) {
       case 'public':
         return <Globe size={16} color={colors.success} />;
@@ -365,7 +383,7 @@ export default function CreatePostScreen() {
         <View style={[styles.section, { backgroundColor: colors.surface }]}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Privacy</Text>
           <View style={styles.privacyContainer}>
-            {(['public', 'friends', 'private'] as PostPrivacy[]).map((privacy) => (
+            {(['public', 'friends', 'private'] as PostVisibility[]).map((privacy) => (
               <TouchableOpacity
                 key={privacy}
                 style={[

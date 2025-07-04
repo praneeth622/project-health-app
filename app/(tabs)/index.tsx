@@ -218,6 +218,9 @@ export default function HomeScreen() {
     chartSection: {
       marginBottom: 24,
     },
+    workoutSection: {
+      marginBottom: 24,
+    },
     quickActionsGrid: {
       flexDirection: 'row',
       flexWrap: 'wrap',
@@ -257,81 +260,98 @@ export default function HomeScreen() {
     },
     eventCard: {
       backgroundColor: colors.cardBackground,
-      borderRadius: 12,
-      padding: 16,
+      borderRadius: 16,
       marginBottom: 12,
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 2,
-    },
-    eventHeader: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: 8,
+      padding: 16,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.12,
+      shadowRadius: 6,
+      elevation: 4,
+    },
+    eventTimeContainer: {
+      width: 65,
+      height: 65,
+      borderRadius: 14,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 16,
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    eventTimeHour: {
+      color: '#FFFFFF',
+      fontSize: 16,
+      fontFamily: 'Inter-Bold',
+    },
+    eventTimeAmPm: {
+      color: '#FFFFFF',
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      opacity: 0.9,
+    },
+    eventTimeDay: {
+      color: '#FFFFFF',
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      opacity: 0.8,
+      marginTop: 2,
+    },
+    eventInfo: {
+      flex: 1,
     },
     eventTitle: {
       fontSize: 16,
       fontFamily: 'Inter-SemiBold',
       color: colors.text,
+      marginBottom: 6,
     },
-    eventTime: {
-      backgroundColor: colors.primary,
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 6,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    eventMeta: {
+    eventDetails: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
       alignItems: 'center',
+    },
+    eventTypeContainer: {
+      backgroundColor: colors.surfaceVariant,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderRadius: 6,
+      marginRight: 8,
     },
     eventType: {
-      fontSize: 12,
-      fontFamily: 'Inter-Regular',
+      fontSize: 13,
+      fontFamily: 'Inter-Medium',
       color: colors.textSecondary,
     },
     eventParticipants: {
-      fontSize: 12,
+      fontSize: 13,
       fontFamily: 'Inter-Regular',
       color: colors.textSecondary,
+      flexDirection: 'row',
+      alignItems: 'center',
     },
-    workoutSection: {
-      paddingHorizontal: 20,
-      marginBottom: 24,
+    eventIndicator: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: '#4ADE80',
+      marginRight: 6,
     },
-    workoutCard: {
-      borderRadius: 16,
-      padding: 20,
-      marginBottom: 16,
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.2,
-      shadowRadius: 8,
-      elevation: 6,
-    },
-    workoutTitle: {
-      fontSize: 18,
-      fontFamily: 'Inter-Bold',
-      color: '#FFFFFF',
-      marginBottom: 4,
-    },
-    workoutWeek: {
-      fontSize: 14,
-      fontFamily: 'Inter-Regular',
-      color: '#FFFFFF',
-      opacity: 0.8,
-      marginBottom: 12,
-    },
-    workoutNext: {
-      fontSize: 12,
-      fontFamily: 'Inter-Medium',
-      color: '#FFFFFF',
-      opacity: 0.9,
+    eventMoreButton: {
+      position: 'absolute',
+      right: 16,
+      top: 16,
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      backgroundColor: colors.surfaceVariant,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     achievementsSection: {
       paddingHorizontal: 20,
@@ -350,59 +370,157 @@ export default function HomeScreen() {
       shadowRadius: 4,
       elevation: 2,
     },
-    achievementIcon: {
-      fontSize: 24,
-      marginRight: 16,
+
+    // New enhanced styles for Active Challenges
+    challengesContainer: {
+      marginBottom: 24,
     },
-    achievementContent: {
-      flex: 1,
+    challengeScroll: {
+      paddingLeft: 20,
+      paddingRight: 8,
     },
-    achievementTitle: {
-      fontSize: 14,
-      fontFamily: 'Inter-SemiBold',
-      color: colors.text,
-      marginBottom: 2,
-    },
-    achievementDescription: {
-      fontSize: 12,
-      fontFamily: 'Inter-Regular',
-      color: colors.textSecondary,
-    },
-    achievementEarned: {
-      opacity: 1,
-    },
-    achievementNotEarned: {
-      opacity: 0.5,
-    },
-    quickNav: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      paddingHorizontal: 20,
-      paddingVertical: 16,
+    challengeCard: {
+      width: width * 0.7,
       backgroundColor: colors.cardBackground,
-      borderTopLeftRadius: 24,
-      borderTopRightRadius: 24,
+      borderRadius: 18,
+      marginRight: 12,
+      overflow: 'hidden',
       shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: -2 },
-      shadowOpacity: 0.1,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 10,
+      elevation: 6,
+      marginBottom: 5,
+      marginTop: 5,
+    },
+    challengeHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      paddingBottom: 12,
+    },
+    challengeIconContainer: {
+      width: 48,
+      height: 48,
+      borderRadius: 16,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 14,
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
       shadowRadius: 4,
       elevation: 3,
     },
-    quickNavItem: {
+    challengeIcon: {
+      fontSize: 24,
+    },
+    challengeContent: {
+      flex: 1,
+    },
+    challengeTitle: {
+      fontSize: 17,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      marginBottom: 3,
+    },
+    challengeDescription: {
+      fontSize: 13,
+      fontFamily: 'Inter-Regular',
+      color: colors.textSecondary,
+      marginBottom: 12,
+    },
+    challengeProgress: {
+      padding: 16,
+      paddingTop: 6,
+      paddingBottom: 18,
+    },
+    challengeProgressBar: {
+      height: 8,
+      backgroundColor: colors.surfaceVariant,
+      borderRadius: 4,
+      marginBottom: 12,
+    },
+    challengeProgressFill: {
+      height: '100%',
+      borderRadius: 4,
+    },
+    challengeProgressDetails: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
       alignItems: 'center',
     },
+    challengeValue: {
+      fontSize: 14,
+      fontFamily: 'Inter-Medium',
+      color: colors.text,
+    },
+    challengePercentage: {
+      fontSize: 14,
+      fontFamily: 'Inter-Bold',
+      color: colors.primary,
+    },
+    challengeBadge: {
+      position: 'absolute',
+      top: 16,
+      right: 16,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      backgroundColor: 'rgba(255,255,255,0.25)',
+      borderRadius: 12,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    challengeBadgeText: {
+      fontSize: 12,
+      fontFamily: 'Inter-SemiBold',
+      color: '#FFFFFF',
+      marginLeft: 4,
+    },
+
+    // Enhanced styles for Quick Navigation
+    quickNavContainer: {
+      backgroundColor: colors.cardBackground,
+      borderRadius: 20,
+      marginHorizontal: 20,
+      marginBottom: 24,
+      paddingVertical: 16,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.15,
+      shadowRadius: 10,
+      elevation: 8,
+    },
+    quickNavTitle: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      marginLeft: 20,
+      marginBottom: 16,
+    },
+    quickNavGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      paddingHorizontal: 12,
+    },
+    quickNavItem: {
+      width: '25%',
+      alignItems: 'center',
+      paddingVertical: 12,
+    },
     quickNavIcon: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
+      width: 52,
+      height: 52,
+      borderRadius: 16,
       justifyContent: 'center',
       alignItems: 'center',
       marginBottom: 8,
       shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.15,
+      shadowRadius: 5,
+      elevation: 4,
     },
     quickNavText: {
       fontSize: 12,
@@ -420,29 +538,167 @@ export default function HomeScreen() {
       paddingHorizontal: 20,
       marginBottom: 20,
     },
-    eventInfo: {
-      flex: 1,
-      marginLeft: 15,
+    
+    // Enhanced styles for Upcoming Events
+    eventsContainerNew: {
+      marginBottom: 24,
     },
-    eventDetails: {
+    eventCardNew: {
+      backgroundColor: colors.cardBackground,
+      borderRadius: 18,
+      marginBottom: 12,
       flexDirection: 'row',
       alignItems: 'center',
-      marginTop: 5,
+      paddingVertical: 16,
+      paddingHorizontal: 16,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 5 },
+      shadowOpacity: 0.15,
+      shadowRadius: 10,
+      elevation: 6,
+      marginLeft: 2,
+      marginRight: 2,
     },
-    eventTimeText: {
+    eventTimeContainerNew: {
+      width: 68,
+      height: 68,
+      borderRadius: 16,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 16,
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 4,
+    },
+    eventTimeHourNew: {
+      color: '#FFFFFF',
+      fontSize: 18,
+      fontFamily: 'Inter-Bold',
+    },
+    eventTimeAmPmNew: {
+      color: '#FFFFFF',
       fontSize: 12,
-      fontFamily: 'Inter_400Regular',
-      color: '#ffffff',
+      fontFamily: 'Inter-Medium',
+      opacity: 0.9,
     },
-    quickNavContainer: {
+    eventTimeDayNew: {
+      color: '#FFFFFF',
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      opacity: 0.8,
+      marginTop: 2,
+    },
+    eventInfoNew: {
+      flex: 1,
+    },
+    eventTitleNew: {
+      fontSize: 17,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      marginBottom: 6,
+    },
+    eventDetailsNew: {
       flexDirection: 'row',
-      justifyContent: 'space-around',
-      paddingHorizontal: 20,
-      paddingVertical: 15,
-      backgroundColor: '#1a1a1a',
-      borderRadius: 15,
+      alignItems: 'center',
+    },
+    eventTypeContainerNew: {
+      backgroundColor: colors.surfaceVariant,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 8,
+      marginRight: 10,
+    },
+    eventTypeNew: {
+      fontSize: 13,
+      fontFamily: 'Inter-Medium',
+      color: colors.textSecondary,
+    },
+    eventParticipantsNew: {
+      fontSize: 13,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.textSecondary,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    eventIndicatorNew: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: '#4ADE80',
+      marginRight: 8,
+    },
+    eventJoinButtonNew: {
+      position: 'absolute',
+      right: 16,
+      top: 18,
+      paddingVertical: 6,
+      paddingHorizontal: 12,
+      backgroundColor: colors.primary,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 3,
+      elevation: 2,
+    },
+    eventJoinTextNew: {
+      fontSize: 13,
+      fontFamily: 'Inter-SemiBold',
+      color: '#FFFFFF',
+    },
+
+    // Enhanced styles for Quick Navigation - New UI
+    quickNavContainerNew: {
+      backgroundColor: colors.cardBackground,
+      borderRadius: 20,
       marginHorizontal: 20,
-      marginBottom: 20,
+      marginBottom: 24,
+      paddingVertical: 16,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.15,
+      shadowRadius: 10,
+      elevation: 8,
+    },
+    quickNavTitleNew: {
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      color: colors.text,
+      marginLeft: 20,
+      marginBottom: 16,
+    },
+    quickNavGridNew: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      paddingHorizontal: 12,
+    },
+    quickNavItemNew: {
+      width: '25%',
+      alignItems: 'center',
+      paddingVertical: 12,
+    },
+    quickNavIconNew: {
+      width: 52,
+      height: 52,
+      borderRadius: 16,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 8,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.15,
+      shadowRadius: 5,
+      elevation: 4,
+    },
+    quickNavTextNew: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.text,
     },
   });
   
@@ -465,9 +721,9 @@ export default function HomeScreen() {
   ];
 
   const upcomingEvents = [
-    { id: 1, title: 'Morning Yoga', time: '07:00 AM', type: 'Group Class', participants: 12 },
-    { id: 2, title: 'HIIT Training', time: '06:00 PM', type: 'Personal', participants: 1 },
-    { id: 3, title: 'Weekend Hike', time: 'Sat 09:00 AM', type: 'Community', participants: 24 },
+    { id: 1, title: 'Morning Yoga', time: '07:00 AM', type: 'Group Class', participants: 12, day: 'Today' },
+    { id: 2, title: 'HIIT Training', time: '06:00 PM', type: 'Personal', participants: 1, day: 'Today' },
+    { id: 3, title: 'Weekend Hike', time: '09:00 AM', type: 'Community', participants: 24, day: 'Sat' },
   ];
 
   const featuredWorkouts = [
@@ -812,31 +1068,62 @@ export default function HomeScreen() {
         {/* Marketplace Section */}
         <MarketplaceSection />
 
-        {/* Recent Achievements */}
+        {/* Active Challenges - Enhanced UI */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Active Challenges</Text>
           <TouchableOpacity onPress={() => router.push('/challenges/index')}>
-            <Award size={20} color={colors.primary} />
+            <Text style={styles.seeAllText}>See All</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.achievementsGrid}>
-          {achievements.map((achievement) => (
-            <View 
-              key={achievement.id} 
-              style={[
-                styles.achievementCard, 
-                achievement.earned && styles.achievementEarned
-              ]}
-            >
-              <Text style={styles.achievementIcon}>{achievement.icon}</Text>
-              <Text style={styles.achievementTitle}>{achievement.title}</Text>
-              <Text style={styles.achievementDescription}>{achievement.description}</Text>
-            </View>
-          ))}
-        </View>
+        <ScrollView 
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.challengeScroll}
+        >
+          {achievements.map((achievement, index) => {
+            // Mock progress data for each challenge
+            const progress = Math.floor(Math.random() * 80) + 10; // Random progress between 10-90%
+            const colors = ['#FF6B6B', '#4ECDC4', '#8B5CF6', '#10B981'];
+            const color = colors[index % colors.length];
+            
+            return (
+              <TouchableOpacity 
+                key={achievement.id} 
+                style={styles.challengeCard}
+                onPress={() => router.push('/challenges/index')}
+              >
+                <View style={styles.challengeHeader}>
+                  <View style={[styles.challengeIconContainer, { backgroundColor: color }]}>
+                    <Text style={styles.challengeIcon}>{achievement.icon}</Text>
+                  </View>
+                  <View style={styles.challengeContent}>
+                    <Text style={styles.challengeTitle}>{achievement.title}</Text>
+                    <Text style={styles.challengeDescription}>{achievement.description}</Text>
+                  </View>
+                </View>
+                <View style={styles.challengeProgress}>
+                  <View style={styles.challengeProgressBar}>
+                    <View 
+                      style={[
+                        styles.challengeProgressFill, 
+                        { width: `${progress}%`, backgroundColor: color }
+                      ]} 
+                    />
+                  </View>
+                  <View style={styles.challengeProgressDetails}>
+                    <Text style={styles.challengeValue}>
+                      {Math.round(progress / 100 * 7)}/7 days
+                    </Text>
+                    <Text style={styles.challengePercentage}>{progress}%</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
 
-        {/* Upcoming Events */}
-        <View style={styles.eventsContainer}>
+        {/* Upcoming Events - Enhanced UI */}
+        <View style={styles.eventsContainerNew}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Upcoming Events</Text>
             <TouchableOpacity onPress={() => router.push('/(tabs)/groups')}>
@@ -844,61 +1131,110 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
           {upcomingEvents.map((event) => (
-            <TouchableOpacity key={event.id} style={styles.eventCard}>
-              <View style={styles.eventTime}>
-                <Text style={styles.eventTimeText}>{event.time}</Text>
+            <TouchableOpacity key={event.id} style={styles.eventCardNew}>
+              <View style={styles.eventTimeContainerNew}>
+                <Text style={styles.eventTimeHourNew}>{event.time.split(' ')[0]}</Text>
+                <Text style={styles.eventTimeAmPmNew}>{event.time.split(' ')[1] || ''}</Text>
+                <Text style={styles.eventTimeDayNew}>{event.day}</Text>
               </View>
-              <View style={styles.eventInfo}>
-                <Text style={styles.eventTitle}>{event.title}</Text>
-                <View style={styles.eventDetails}>
-                  <Text style={styles.eventType}>{event.type}</Text>
-                  <Text style={styles.eventParticipants}>
-                    {event.participants} participant{event.participants !== 1 ? 's' : ''}
-                  </Text>
+              <View style={styles.eventInfoNew}>
+                <Text style={styles.eventTitleNew}>{event.title}</Text>
+                <View style={styles.eventDetailsNew}>
+                  <View style={styles.eventTypeContainerNew}>
+                    <Text style={styles.eventTypeNew}>{event.type}</Text>
+                  </View>
+                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <View style={styles.eventIndicatorNew} />
+                    <Text style={styles.eventParticipantsNew}>
+                      {event.participants} participant{event.participants !== 1 ? 's' : ''}
+                    </Text>
+                  </View>
                 </View>
               </View>
+              <TouchableOpacity style={styles.eventJoinButtonNew}>
+                <Text style={styles.eventJoinTextNew}>Join</Text>
+              </TouchableOpacity>
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* Quick Navigation */}
-        <View style={styles.quickNavContainer}>
-          <TouchableOpacity 
-            style={styles.quickNavItem}
-            onPress={() => router.push('/(tabs)/groups')}
-          >
-            <View style={[styles.quickNavIcon, { backgroundColor: colors.primary }]}>
-              <Users size={20} color="#FFFFFF" />
-            </View>
-            <Text style={styles.quickNavText}>Groups</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.quickNavItem}
-            onPress={() => router.push('/(tabs)/messages')}
-          >
-            <View style={[styles.quickNavIcon, { backgroundColor: colors.accent }]}>
-              <MessageCircle size={20} color="#FFFFFF" />
-            </View>
-            <Text style={styles.quickNavText}>Messages</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.quickNavItem}
-            onPress={() => router.push({ pathname: '/search' as any })}
-          >
-            <View style={[styles.quickNavIcon, { backgroundColor: '#8B5CF6' }]}>
-              <Search size={20} color="#FFFFFF" />
-            </View>
-            <Text style={styles.quickNavText}>Search</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.quickNavItem}
-            onPress={() => router.push('/(tabs)/discover')}
-          >
-            <View style={[styles.quickNavIcon, { backgroundColor: '#FF6B6B' }]}>
-              <Activity size={20} color="#FFFFFF" />
-            </View>
-            <Text style={styles.quickNavText}>Discover</Text>
-          </TouchableOpacity>
+        {/* Quick Navigation - Enhanced UI */}
+        <View style={styles.quickNavContainerNew}>
+          <Text style={styles.quickNavTitleNew}>Quick Navigation</Text>
+          <View style={styles.quickNavGridNew}>
+            <TouchableOpacity 
+              style={styles.quickNavItemNew}
+              onPress={() => router.push('/(tabs)/groups')}
+            >
+              <View style={[styles.quickNavIconNew, { backgroundColor: '#4A6FFF' }]}>
+                <Users size={22} color="#FFFFFF" />
+              </View>
+              <Text style={styles.quickNavTextNew}>Groups</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.quickNavItemNew}
+              onPress={() => router.push('/(tabs)/messages')}
+            >
+              <View style={[styles.quickNavIconNew, { backgroundColor: '#FF6B6B' }]}>
+                <MessageCircle size={22} color="#FFFFFF" />
+              </View>
+              <Text style={styles.quickNavTextNew}>Messages</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.quickNavItemNew}
+              onPress={() => router.push({ pathname: '/search' as any })}
+            >
+              <View style={[styles.quickNavIconNew, { backgroundColor: '#8B5CF6' }]}>
+                <Search size={22} color="#FFFFFF" />
+              </View>
+              <Text style={styles.quickNavTextNew}>Search</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.quickNavItemNew}
+              onPress={() => router.push('/(tabs)/discover')}
+            >
+              <View style={[styles.quickNavIconNew, { backgroundColor: '#10B981' }]}>
+                <Activity size={22} color="#FFFFFF" />
+              </View>
+              <Text style={styles.quickNavTextNew}>Discover</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.quickNavItemNew}
+              onPress={() => router.push('/(tabs)/workouts')}
+            >
+              <View style={[styles.quickNavIconNew, { backgroundColor: '#F59E0B' }]}>
+                <Zap size={22} color="#FFFFFF" />
+              </View>
+              <Text style={styles.quickNavTextNew}>Workouts</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.quickNavItemNew}
+              onPress={() => router.push('/challenges/index')}
+            >
+              <View style={[styles.quickNavIconNew, { backgroundColor: '#EC4899' }]}>
+                <Award size={22} color="#FFFFFF" />
+              </View>
+              <Text style={styles.quickNavTextNew}>Challenges</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.quickNavItemNew}
+              onPress={() => router.push('/(tabs)/marketplace')}
+            >
+              <View style={[styles.quickNavIconNew, { backgroundColor: '#6366F1' }]}>
+                <ShoppingBag size={22} color="#FFFFFF" />
+              </View>
+              <Text style={styles.quickNavTextNew}>Shop</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.quickNavItemNew}
+              onPress={() => router.push('/reminders')}
+            >
+              <View style={[styles.quickNavIconNew, { backgroundColor: '#0EA5E9' }]}>
+                <Clock size={22} color="#FFFFFF" />
+              </View>
+              <Text style={styles.quickNavTextNew}>Reminders</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -3,15 +3,23 @@ import { supabase } from '@/lib/supabase';
 
 // Post Types
 export type PostType = 'text' | 'image' | 'video' | 'workout' | 'health';
-export type PostPrivacy = 'public' | 'friends' | 'private';
+export type PostPrivacy = 'public' | 'friends' | 'private'; // This is used as 'visibility' in the API
 
 export interface Post {
   id: string;
   content: string;
   type: PostType;
-  privacy: PostPrivacy;
-  image_urls?: string[];
+  visibility: PostPrivacy; // Changed from privacy to visibility
+  media_urls?: string[]; // Changed from image_urls
   video_url?: string;
+  metadata?: {
+    workout_type?: string;
+    distance_km?: number;
+    duration_minutes?: number;
+    calories_burned?: number;
+    location?: string;
+    [key: string]: any;
+  };
   workout_data?: {
     workout_id: string;
     workout_name: string;
@@ -30,6 +38,7 @@ export interface Post {
   comments_count: number;
   shares_count: number;
   created_by: string;
+  user_id?: string; // Added to match the example schema
   author?: {
     id: string;
     name: string;
@@ -47,8 +56,8 @@ export interface Post {
 export interface CreatePostRequest {
   content: string;
   type: PostType;
-  privacy: PostPrivacy;
-  image_urls?: string[];
+  visibility: PostPrivacy; // Changed privacy to visibility to match the expected schema
+  media_urls?: string[]; // Changed image_urls to media_urls to match the expected schema
   video_url?: string;
   workout_data?: {
     workout_id: string;
@@ -61,8 +70,20 @@ export interface CreatePostRequest {
     value: number;
     unit: string;
   };
+  metadata?: {
+    workout_type?: string;
+    distance_km?: number;
+    duration_minutes?: number;
+    calories_burned?: number;
+    location?: string;
+    metric_type?: string; // Added for health data
+    value?: number; // Added for health data
+    unit?: string; // Added for health data
+    [key: string]: any; // Added to allow for additional fields
+  };
   tags?: string[];
   location?: string;
+  user_id: string; // Required field for the API
 }
 
 export interface UpdatePostRequest {
@@ -131,6 +152,11 @@ export class PostsService {
         console.error('Error getting current user:', error);
         return null;
       }
+      if (!user?.id) {
+        console.error('No user ID found in session');
+      } else {
+        console.log('✅ Got current user ID:', user.id);
+      }
       return user?.id || null;
     } catch (error) {
       console.error('Error in getCurrentUserId:', error);
@@ -142,18 +168,63 @@ export class PostsService {
    * Create a new post
    * POST /posts
    */
-  static async createPost(postData: CreatePostRequest): Promise<Post> {
+  static async createPost(postData: Omit<CreatePostRequest, 'user_id'>): Promise<Post> {
     try {
       // Validate required fields
       if (!postData.content.trim()) {
         throw new Error('Post content is required');
       }
 
-      console.log('🔄 Creating new post:', postData.type);
-      const response = await apiClient.post('/posts', {
-        ...postData,
+      // Get the current user ID - this is required by the API
+      const currentUserId = await this.getCurrentUserId();
+      if (!currentUserId) {
+        throw new Error('User not authenticated. Please log in to create a post.');
+      }
+
+      // Format the request to match the expected schema
+      const requestPayload = {
         content: postData.content.trim(),
-      });
+        type: postData.type,
+        visibility: postData.visibility || 'public', // Use visibility instead of privacy
+        media_urls: postData.media_urls || [],
+        tags: postData.tags || [],
+        user_id: currentUserId, // Add the user ID to the payload
+        metadata: {
+          ...postData.metadata
+        }
+      };
+
+      // Include location in metadata if provided
+      if (postData.location) {
+        requestPayload.metadata = {
+          ...requestPayload.metadata,
+          location: postData.location
+        };
+      }
+
+      // Include workout data in metadata if provided
+      if (postData.workout_data) {
+        requestPayload.metadata = {
+          ...requestPayload.metadata,
+          workout_type: postData.workout_data.workout_name,
+          duration_minutes: postData.workout_data.duration_minutes,
+          calories_burned: postData.workout_data.calories_burned
+        };
+      }
+
+      // Include health data if provided
+      if (postData.health_data) {
+        requestPayload.metadata = {
+          ...requestPayload.metadata,
+          metric_type: postData.health_data.metric_type,
+          value: postData.health_data.value,
+          unit: postData.health_data.unit
+        };
+      }
+
+      console.log('🔄 Creating new post:', requestPayload.type);
+      console.log('🔄 Post payload:', JSON.stringify(requestPayload));
+      const response = await apiClient.post('/posts', requestPayload);
       console.log('✅ Post created successfully:', response.data.id);
       return response.data;
     } catch (error: any) {
