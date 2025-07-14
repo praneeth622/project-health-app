@@ -1,13 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Animated, RefreshControl } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import UserHeader from '@/components/UserHeader';
 import CircularProgress from '@/components/CircularProgress';
 import HealthLogger from '@/components/HealthLogger';
-import { MapPin, Trophy, Medal, Award, Target, Flame, Footprints, Clock, TrendingUp, Calendar, BarChart3, Activity, Plus } from 'lucide-react-native';
+import { MapPin, Trophy, Medal, Award, Target, Flame, Footprints, Clock, TrendingUp, Calendar, BarChart3, Activity, Plus, Star, Crown, Zap, Heart } from 'lucide-react-native';
 import { Colors, useTheme } from '@/contexts/ThemeContext';
 import HealthLogsService, { HealthLog } from '@/services/healthLogsService';
+import { AnimationUtils } from '@/utils/animationUtils';
+import { createVibrantShadow } from '@/utils/colorUtils';
 
 const { width } = Dimensions.get('window');
 
@@ -18,6 +21,13 @@ export default function ActivityScreen() {
   const [healthLogs, setHealthLogs] = useState<HealthLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedAchievement, setSelectedAchievement] = useState<number | null>(null);
+  const achievementAnimations = useRef([
+    new Animated.Value(1),
+    new Animated.Value(1),
+    new Animated.Value(1),
+    new Animated.Value(1)
+  ]).current;
   const styles = createStyles(colors);
   
   const tabs = ['Today', 'Week', 'Month'];
@@ -93,6 +103,83 @@ export default function ActivityScreen() {
   }, [healthLogs]);
 
   const dailyStats = getDailyStatsFromLogs();
+
+  // Enhanced achievements data with vibrant modern design
+  const achievements = [
+    {
+      id: 1,
+      title: '7-Day Streak',
+      subtitle: 'Consistency Master',
+      icon: Trophy,
+      isCompleted: true,
+      progress: 100,
+      gradient: ['#2DD4BF', '#14B8A6'] as const,
+      shadowColor: '#2DD4BF',
+      emoji: '🏆',
+      description: 'Logged activity for 7 consecutive days',
+      points: 250,
+      rarity: 'Epic',
+      progressBar: 100
+    },
+    {
+      id: 2,
+      title: 'Goal Crusher',
+      subtitle: '200% Target',
+      icon: Medal,
+      isCompleted: true,
+      progress: 100,
+      gradient: ['#2DD4BF', '#14B8A6'] as const,
+      shadowColor: '#2DD4BF',
+      emoji: '🎯',
+      description: 'Exceeded daily goal by 200%',
+      points: 300,
+      rarity: 'Legendary',
+      progressBar: 100
+    },
+    {
+      id: 3,
+      title: 'New Record',
+      subtitle: 'Personal Best',
+      icon: Award,
+      isCompleted: true,
+      progress: 100,
+      gradient: ['#2DD4BF', '#14B8A6'] as const,
+      shadowColor: '#2DD4BF',
+      emoji: '🥇',
+      description: 'Set a new personal record',
+      points: 200,
+      rarity: 'Rare',
+      progressBar: 100
+    },
+    {
+      id: 4,
+      title: 'Marathon Ready',
+      subtitle: 'Complete 42km total',
+      icon: Target,
+      isCompleted: false,
+      progress: 60,
+      gradient: ['#8B5CF6', '#6366F1'] as const,
+      shadowColor: '#8B5CF6',
+      emoji: '🏃',
+      description: 'Build endurance for marathon distance',
+      points: 500,
+      rarity: 'Epic',
+      progressBar: 60
+    }
+  ];
+
+  // Enhanced animation functions for achievements
+  const animateAchievement = (index: number) => {
+    AnimationUtils.createBounceSequence(
+      achievementAnimations[index],
+      { scale: 1.05, duration: 200 }
+    ).start();
+  };
+
+  const handleAchievementPress = (achievement: any, index: number) => {
+    setSelectedAchievement(selectedAchievement === achievement.id ? null : achievement.id);
+    animateAchievement(index);
+  };
 
   const recentActivities = [
     { time: '2 hours ago', activity: 'Morning Run', duration: '25 min', calories: '142 kcal', icon: '🏃‍♀️' },
@@ -276,66 +363,161 @@ export default function ActivityScreen() {
           ))}
         </View>
 
-        {/* Enhanced Awards Section */}
-        <View style={styles.awardsContainer}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Achievements</Text>
-            <TouchableOpacity style={styles.viewAllButton}>
-              <Text style={styles.seeAllText}>View All</Text>
-              <BarChart3 size={16} color={colors.primary} style={{ marginLeft: 4 }} />
+        {/* Enhanced Achievements Section - Compact Modern Design */}
+        <View style={styles.achievementsContainer}>
+          {/* Compact Header */}
+          <View style={styles.achievementsHeader}>
+            <View style={styles.achievementsTitleContainer}>
+              <View style={styles.achievementsIconContainer}>
+                <Star size={22} color="#FFFFFF" />
+              </View>
+              <View>
+                <Text style={styles.achievementsTitle}>Achievements</Text>
+                <Text style={styles.achievementsSubtitle}>6/12 earned this month</Text>
+              </View>
+            </View>
+            <TouchableOpacity style={styles.viewAllAchievementsButton}>
+              <Text style={styles.viewAllAchievementsText}>View All</Text>
+              <TrendingUp size={14} color={colors.primary} style={{ marginLeft: 4 }} />
             </TouchableOpacity>
           </View>
-          <Text style={styles.sectionSubtitle}>You've earned 6/12 achievements this month.</Text>
           
-          <View style={styles.awardsGrid}>
-            <View style={[styles.awardCard, styles.awardActive]}>
-              <View style={styles.awardIconContainer}>
-                <Trophy size={24} color="#FFFFFF" />
-              </View>
-              <Text style={[styles.awardTitle, styles.awardActiveTitle]}>7-Day Streak</Text>
-              <Text style={[styles.awardSubtitle, styles.awardActiveSubtitle]}>Consistency Master</Text>
-              <View style={styles.awardProgress}>
-                <View style={styles.awardProgressBar}>
-                  <View style={[styles.awardProgressFill, { width: '100%' }]} />
-                </View>
-              </View>
-            </View>
-            <View style={[styles.awardCard, styles.awardActive]}>
-              <View style={styles.awardIconContainer}>
-                <Medal size={24} color="#FFFFFF" />
-              </View>
-              <Text style={[styles.awardTitle, styles.awardActiveTitle]}>Goal Crusher</Text>
-              <Text style={[styles.awardSubtitle, styles.awardActiveSubtitle]}>200% Target</Text>
-              <View style={styles.awardProgress}>
-                <View style={styles.awardProgressBar}>
-                  <View style={[styles.awardProgressFill, { width: '100%' }]} />
-                </View>
-              </View>
-            </View>
-            <View style={[styles.awardCard, styles.awardActive]}>
-              <View style={styles.awardIconContainer}>
-                <Award size={24} color="#FFFFFF" />
-              </View>
-              <Text style={[styles.awardTitle, styles.awardActiveTitle]}>New Record</Text>
-              <Text style={[styles.awardSubtitle, styles.awardActiveSubtitle]}>Personal Best</Text>
-              <View style={styles.awardProgress}>
-                <View style={styles.awardProgressBar}>
-                  <View style={[styles.awardProgressFill, { width: '100%' }]} />
-                </View>
-              </View>
-            </View>
-            <View style={styles.awardCard}>
-              <View style={[styles.awardIconContainer, { backgroundColor: colors.surfaceVariant }]}>
-                <Target size={24} color={colors.textSecondary} />
-              </View>
-              <Text style={styles.awardTitle}>Marathon Ready</Text>
-              <Text style={styles.awardSubtitle}>Complete 42km total</Text>
-              <View style={styles.awardProgress}>
-                <View style={styles.awardProgressBar}>
-                  <View style={[styles.awardProgressFill, { width: '60%', backgroundColor: colors.primary }]} />
-                </View>
-              </View>
-            </View>
+          {/* Compact Achievement Cards Grid */}
+          <View style={styles.achievementsGrid}>
+            {achievements.map((achievement, index) => {
+              const IconComponent = achievement.icon;
+              const isSelected = selectedAchievement === achievement.id;
+              
+              return (
+                <Animated.View
+                  key={achievement.id}
+                  style={[
+                    styles.achievementCardWrapper,
+                    { transform: [{ scale: achievementAnimations[index] }] }
+                  ]}
+                >
+                  <TouchableOpacity
+                    style={[
+                      styles.achievementCard,
+                      achievement.isCompleted && styles.achievementCardCompleted,
+                      isSelected && styles.achievementCardSelected
+                    ]}
+                    onPress={() => handleAchievementPress(achievement, index)}
+                    activeOpacity={0.8}
+                  >
+                    {achievement.isCompleted ? (
+                      <LinearGradient
+                        colors={achievement.gradient}
+                        style={styles.achievementGradient}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                      >
+                        <View style={styles.achievementContent}>
+                          {/* Compact Achievement Header */}
+                          <View style={styles.achievementHeader}>
+                            <View style={styles.achievementIconWrapper}>
+                              <Text style={styles.achievementEmoji}>{achievement.emoji}</Text>
+                            </View>
+                            <View style={styles.achievementCompleteBadge}>
+                              <Text style={styles.achievementCompleteText}>✓</Text>
+                            </View>
+                          </View>
+                          
+                          {/* Achievement Details */}
+                          <View style={styles.achievementTextContainer}>
+                            <Text style={styles.achievementTitleCompleted} numberOfLines={1}>
+                              {achievement.title}
+                            </Text>
+                            <Text style={styles.achievementSubtitleCompleted} numberOfLines={1}>
+                              {achievement.subtitle}
+                            </Text>
+                          </View>
+                          
+                          {/* Compact Progress Bar */}
+                          <View style={styles.achievementProgressContainer}>
+                            <View style={styles.achievementProgressBarCompleted}>
+                              <View style={styles.achievementProgressFillCompleted} />
+                            </View>
+                          </View>
+                          
+                          {/* Points Badge */}
+                          <View style={styles.achievementPointsBadge}>
+                            <Zap size={10} color="#FFFFFF" />
+                            <Text style={styles.achievementPointsText}>+{achievement.points}</Text>
+                          </View>
+                          
+                          {isSelected && (
+                            <View style={styles.achievementDetailsExpanded}>
+                              <Text style={styles.achievementDescription} numberOfLines={2}>
+                                {achievement.description}
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      </LinearGradient>
+                    ) : (
+                      <LinearGradient
+                        colors={[achievement.gradient[0] + '20', achievement.gradient[1] + '20']}
+                        style={styles.achievementGradient}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                      >
+                        <View style={styles.achievementContent}>
+                          {/* Compact Locked Achievement Header */}
+                          <View style={styles.achievementHeader}>
+                            <View style={styles.achievementIconWrapperLocked}>
+                              <Text style={styles.achievementEmojiLocked}>{achievement.emoji}</Text>
+                            </View>
+                            <View style={styles.achievementProgressPercent}>
+                              <Text style={styles.achievementProgressPercentText}>{achievement.progressBar}%</Text>
+                            </View>
+                          </View>
+                          
+                          {/* Achievement Details */}
+                          <View style={styles.achievementTextContainer}>
+                            <Text style={styles.achievementTitle} numberOfLines={1}>
+                              {achievement.title}
+                            </Text>
+                            <Text style={styles.achievementSubtitle} numberOfLines={1}>
+                              {achievement.subtitle}
+                            </Text>
+                          </View>
+                          
+                          {/* Compact Progress Bar with Achievement Color */}
+                          <View style={styles.achievementProgressContainer}>
+                            <View style={styles.achievementProgressBar}>
+                              <View style={[
+                                styles.achievementProgressFill,
+                                { 
+                                  width: `${achievement.progressBar}%`,
+                                  backgroundColor: achievement.gradient[0]
+                                }
+                              ]} />
+                            </View>
+                          </View>
+                          
+                          {/* Reward Preview */}
+                          <View style={styles.achievementRewardPreview}>
+                            <Zap size={10} color={achievement.gradient[0]} />
+                            <Text style={[styles.achievementPointsTextLocked, { color: achievement.gradient[0] }]}>
+                              +{achievement.points}
+                            </Text>
+                          </View>
+                          
+                          {isSelected && (
+                            <View style={styles.achievementDetailsExpanded}>
+                              <Text style={[styles.achievementDescription, { color: colors.textSecondary }]} numberOfLines={2}>
+                                {achievement.description}
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      </LinearGradient>
+                    )}
+                  </TouchableOpacity>
+                </Animated.View>
+              );
+            })}
           </View>
         </View>
 
@@ -430,8 +612,8 @@ export default function ActivityScreen() {
     },
     header: {
       paddingHorizontal: 20,
-      paddingTop: 20,
-      paddingBottom: 28,
+      paddingTop: 16,
+      paddingBottom: 20,
       backgroundColor: colors.cardBackground,
       borderBottomLeftRadius: 24,
       borderBottomRightRadius: 24,
@@ -455,8 +637,8 @@ export default function ActivityScreen() {
     tabContainer: {
       flexDirection: 'row',
       marginHorizontal: 20,
-      marginTop: 20,
-      marginBottom: 28,
+      marginTop: 16,
+      marginBottom: 20,
       backgroundColor: colors.surfaceVariant,
       borderRadius: 16,
       padding: 6,
@@ -492,14 +674,14 @@ export default function ActivityScreen() {
       flexDirection: 'row',
       flexWrap: 'wrap',
       paddingHorizontal: 16,
-      marginBottom: 24,
+      marginBottom: 20,
       gap: 8,
     },
     statCard: {
       width: (width - 48) / 2,
       backgroundColor: colors.cardBackground,
-      borderRadius: 16,
-      padding: 16,
+      borderRadius: 14,
+      padding: 14,
       shadowColor: colors.shadow,
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.1,
@@ -510,7 +692,7 @@ export default function ActivityScreen() {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginBottom: 12,
+      marginBottom: 10,
     },
     statLabelRow: {
       flexDirection: 'row',
@@ -565,9 +747,9 @@ export default function ActivityScreen() {
     challengeCard: {
       backgroundColor: colors.cardBackground,
       marginHorizontal: 20,
-      padding: 20,
+      padding: 18,
       borderRadius: 16,
-      marginBottom: 24,
+      marginBottom: 20,
       shadowColor: colors.shadow,
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.1,
@@ -662,7 +844,7 @@ export default function ActivityScreen() {
       borderRadius: 3,
     },
     progressSection: {
-      marginBottom: 32,
+      marginBottom: 24,
     },
     progressContainer: {
       alignItems: 'center',
@@ -739,30 +921,6 @@ export default function ActivityScreen() {
       backgroundColor: colors.primary + '10',
       borderRadius: 16,
     },
-    awardIconContainer: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginBottom: 12,
-    },
-    awardProgress: {
-      marginTop: 8,
-      width: '100%',
-    },
-    awardProgressBar: {
-      height: 3,
-      backgroundColor: 'rgba(255, 255, 255, 0.3)',
-      borderRadius: 2,
-      overflow: 'hidden',
-    },
-    awardProgressFill: {
-      height: '100%',
-      backgroundColor: '#FFFFFF',
-      borderRadius: 2,
-    },
     sectionHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -787,48 +945,283 @@ export default function ActivityScreen() {
       fontFamily: 'Inter-Medium',
       color: colors.primary,
     },
-    awardsContainer: {
-      paddingHorizontal: 20,
-      marginBottom: 32,
-    },
-    awardsGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: 12,
-    },
-    awardCard: {
-      width: (width - 64) / 2,
-      backgroundColor: colors.surfaceVariant,
+    // Enhanced Achievements Styles - Compact Modern Design
+    achievementsContainer: {
+      marginHorizontal: 16,
+      marginBottom: 24,
+      backgroundColor: colors.cardBackground,
+      borderRadius: 16,
       padding: 16,
-      borderRadius: 12,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.1,
+      shadowRadius: 12,
+      elevation: 6,
+    },
+    achievementsHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
       alignItems: 'center',
+      marginBottom: 16,
     },
-    awardActive: {
+    achievementsTitleContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    achievementsIconContainer: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
       backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 12,
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 3,
     },
-    awardTitle: {
+    achievementsTitle: {
+      fontSize: 20,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+      marginBottom: 2,
+      letterSpacing: -0.2,
+    },
+    achievementsSubtitle: {
+      fontSize: 12,
+      fontFamily: 'Inter-Medium',
+      color: colors.textSecondary,
+      lineHeight: 16,
+    },
+    viewAllAchievementsButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surfaceVariant,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    viewAllAchievementsText: {
       fontSize: 12,
       fontFamily: 'Inter-SemiBold',
+      color: colors.primary,
+    },
+    achievementsGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 10,
+    },
+    achievementCardWrapper: {
+      width: (width - 76) / 2,
+    },
+    achievementCard: {
+      borderRadius: 16,
+      overflow: 'hidden',
+      shadowColor: '#2DD4BF',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 8,
+      elevation: 4,
+      backgroundColor: colors.cardBackground,
+    },
+    achievementCardCompleted: {
+      shadowOpacity: 0.25,
+      shadowRadius: 12,
+      elevation: 6,
+    },
+    achievementCardSelected: {
+      transform: [{ scale: 1.02 }],
+    },
+    achievementGradient: {
+      borderRadius: 16,
+    },
+    achievementContent: {
+      padding: 12,
+      minHeight: 140,
+      justifyContent: 'space-between',
+    },
+    achievementHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    achievementIconWrapper: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: 'rgba(255, 255, 255, 0.25)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    achievementIconWrapperLocked: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: colors.surfaceVariant,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 2,
+      borderColor: colors.border,
+    },
+    achievementCompleteBadge: {
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    achievementCompleteText: {
+      fontSize: 12,
+      fontFamily: 'Inter-Bold',
+      color: '#FFFFFF',
+    },
+    achievementProgressPercent: {
+      backgroundColor: colors.surfaceVariant,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 8,
+    },
+    achievementProgressPercentText: {
+      fontSize: 10,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+    },
+    achievementTextContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      marginVertical: 6,
+    },
+    achievementEmoji: {
+      fontSize: 20,
+    },
+    achievementEmojiLocked: {
+      fontSize: 20,
+      opacity: 0.6,
+    },
+    achievementTitle: {
+      fontSize: 14,
+      fontFamily: 'Inter-Bold',
+      color: colors.text,
+      marginBottom: 2,
+      lineHeight: 18,
+      textAlign: 'center',
+    },
+    achievementTitleCompleted: {
+      color: '#FFFFFF',
+      fontSize: 14,
+      fontFamily: 'Inter-Bold',
+      marginBottom: 2,
+      lineHeight: 18,
+      textAlign: 'center',
+    },
+    achievementSubtitle: {
+      fontSize: 11,
+      fontFamily: 'Inter-Medium',
+      color: colors.textSecondary,
+      lineHeight: 14,
+      textAlign: 'center',
+    },
+    achievementSubtitleCompleted: {
+      color: 'rgba(255, 255, 255, 0.85)',
+      fontSize: 11,
+      fontFamily: 'Inter-Medium',
+      lineHeight: 14,
+      textAlign: 'center',
+    },
+    achievementProgressContainer: {
+      marginVertical: 8,
+    },
+    achievementProgressBar: {
+      height: 4,
+      backgroundColor: colors.surfaceVariant,
+      borderRadius: 2,
+      overflow: 'hidden',
+    },
+    achievementProgressBarCompleted: {
+      height: 4,
+      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      borderRadius: 2,
+      overflow: 'hidden',
+    },
+    achievementProgressFill: {
+      height: '100%',
+      backgroundColor: colors.primary,
+      borderRadius: 2,
+    },
+    achievementProgressFillCompleted: {
+      height: '100%',
+      backgroundColor: '#FFFFFF',
+      borderRadius: 2,
+      width: '100%',
+    },
+    achievementProgressText: {
+      fontSize: 10,
+      fontFamily: 'Inter-Bold',
       color: colors.textSecondary,
       textAlign: 'center',
-      marginTop: 8,
-      marginBottom: 4,
+      marginTop: 4,
     },
-    awardActiveTitle: {
+    achievementPointsBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: 'rgba(255, 255, 255, 0.25)',
+      paddingHorizontal: 6,
+      paddingVertical: 3,
+      borderRadius: 10,
+      alignSelf: 'center',
+      marginTop: 4,
+    },
+    achievementPointsText: {
+      fontSize: 10,
+      fontFamily: 'Inter-Bold',
       color: '#FFFFFF',
+      marginLeft: 2,
     },
-    awardSubtitle: {
+    achievementPointsTextLocked: {
+      fontSize: 10,
+      fontFamily: 'Inter-Bold',
+      color: colors.textSecondary,
+      marginLeft: 2,
+    },
+    achievementDetailsExpanded: {
+      marginTop: 8,
+      paddingTop: 8,
+      borderTopWidth: 1,
+      borderTopColor: 'rgba(255, 255, 255, 0.2)',
+    },
+    achievementDetails: {
+      marginTop: 8,
+      paddingTop: 8,
+      borderTopWidth: 1,
+      borderTopColor: 'rgba(255, 255, 255, 0.2)',
+    },
+    achievementDescription: {
       fontSize: 10,
       fontFamily: 'Inter-Regular',
-      color: colors.textTertiary,
+      color: 'rgba(255, 255, 255, 0.8)',
+      lineHeight: 13,
+      textAlign: 'center',
     },
-    awardActiveSubtitle: {
-      color: '#FFFFFF',
-      opacity: 0.8,
+    achievementRewardPreview: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surfaceVariant,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 8,
+      alignSelf: 'center',
+      marginTop: 4,
     },
     activitiesContainer: {
       paddingHorizontal: 20,
-      marginBottom: 32,
+      marginBottom: 24,
     },
     activityItem: {
       flexDirection: 'row',
